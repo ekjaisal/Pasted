@@ -1,0 +1,142 @@
+﻿Pasted is a swift, stubbornly lightweight, native text-substitution utility 
+designed to work system-wide on Windows (see § Limitations). It combines the 
+convenience of text-substitution with a fully-featured graphical user interface 
+for management, maintaining a minimal footprint on system resources while working 
+offline to ensure privacy.
+
+The application monitors keystrokes and substitutes trigger strings when matches 
+are detected. It also includes a Quick Search dialog for searching triggers and 
+inserting definitions with ease. Pasted thus helps save time by reducing look-ups 
+for characters not readily available on the keyboard and by lessening repetitive 
+typing of long text snippets.
+
+
+THE INTERFACE
+__________________________________________________________________________________
+
+The main interface has three sections:
+
+  • Left Panel (Collections): Organises triggers into manageable categories.
+  • Middle Panel (Triggers): Displays active triggers, showing their Name, 
+    Trigger, Collection, and the time they were Last Triggered.
+  • Right Panel (Preview): Shows the full definition text of the currently 
+    selected trigger.
+
+
+CREATING AND MANAGING TRIGGERS
+__________________________________________________________________________________
+
+To define a new text-substitution trigger:
+
+  1. Click the ‘+ Trigger’ button in the right panel.
+  2. Name: Enter a descriptive name for the item (e.g. ‘Workplace Address’).
+  3. Trigger: Enter the short sequence of characters.
+     Tip: Prefix sequences with a symbol like a semicolon (e.g. ‘;adw’) to 
+          prevent accidental substitutions during regular typing.
+  4. Collection: Select an existing category or type a new one to keep 
+     the items organised.
+  5. Definition: Enter the full text that should be inserted when the 
+     trigger fires.
+  6. Click ‘Save’.
+
+To edit, delete, or move a trigger to a different collection, select the 
+trigger from the list and use the corresponding buttons above the preview 
+panel. Alternatively, right-click the selected items in the list to access 
+the options via a context menu.
+
+
+DYNAMIC CONTENT
+__________________________________________________________________________________
+
+Pasted supports dynamic date and time variables, allowing triggers to resolve to 
+the current date or time. To use dynamic content, wrap standard date/time 
+formatting letters in tags, such as ‘${}’.
+
+Examples of dynamic tag usage:
+
+  • ‘${yyyy-mm-dd}’                     →   e.g. ‘2026-02-25’
+  • ‘${dd/mm/yyyy}’                     →   e.g. ‘25/02/2026’
+  • ‘${hh:nn:ss}’                       →   e.g. ‘14:30:45’
+  • ‘${hh:nn:ss AM/PM}’                 →   e.g. ‘02:30:45 PM’
+  • ‘${mmmm}’                           →   e.g. ‘February’
+  • ‘${dddd, dd mmmm yyyy}’             →   e.g. ‘Wednesday, 25 February 2026’
+  • ‘${yyyy-mm-dd}T${hh:nn:ss}+05:30’   →   e.g. ‘2026-02-25T14:30:45+05:30’
+  • ‘${yyyy-mm-dd_hhnnss}’              →   e.g. ‘2026-02-25_143045’
+  
+  Note: Always use ‘nn’ for minutes. Using ‘mm’ may insert the month number 
+        instead of the minute.
+
+The definition text can contain the dynamic tag anywhere within it. When the 
+trigger is fired, Pasted will calculate the exact current local time and insert 
+it.
+
+To include a literal tag in the definition without resolving it to a date 
+or time, prefix the tag with a backslash character (‘\’). For example, typing 
+‘\${yyyy-mm-dd}’ will output the exact text ‘${yyyy-mm-dd}’ rather than 
+resolving to the current date.
+
+
+QUICK SEARCH & MANUAL INSERTION
+__________________________________________________________________________________
+
+Pasted includes a global Quick Search feature that can be called by pressing 
+‘Alt’ + ‘;’ or alternatively ‘Ctrl’ + ‘Alt’ + ‘;’ from anywhere on the system.
+
+Type part of the name, trigger, or definition in the search dialog to find it, 
+use the ‘up’ or ‘down’ arrow keys to select it, and click or press ‘Enter’ to 
+insert it into the active text field.
+
+
+KEEPING UI UPDATED
+__________________________________________________________________________________
+
+Pasted is designed to be resource-efficient, and since it monitors typing in 
+the background without constantly refreshing the interface, the ‘Last Triggered’ 
+column in the main window might become stale if the dashboard is left open while 
+substitutions are executed in other applications.
+
+To view the latest trigger timestamps, click the ‘Refresh’ button available at 
+the top-right of the middle panel. Clicking ‘Refresh’ immediately queries the 
+database and updates the UI with the most recent usage details.
+
+
+DATA BACKUP, RESTORE, EXPORT & IMPORT
+__________________________________________________________________________________
+
+Pasted stores data in a local SQLite database.
+
+  • Back up: Navigate to ‘Data’ → ‘Back Up Database’ to save a complete copy of 
+    the current database.
+  • Restore: Navigate to ‘Data’ → ‘Restore Database’ to overwrite the current 
+    database with a backed up version.
+  • Export/Import: Navigate to ‘Triggers’ → ‘Export Triggers’ or ‘Import Triggers’ 
+    to save or load the triggers and definitions in JSON format, which is 
+    convenient for exchanging data between devices. To export specific 
+    collections, select the required items from the ‘Collections’ panel, 
+    right-click, and choose ‘Export Collection(s)’.
+
+
+APPLICATION CONTROLS
+__________________________________________________________________________________
+
+  • Pause/Resume: Temporarily suspend Pasted to prevent it from executing 
+    substitutions by navigating to ‘Controls’ → ‘Pause Activity’. This option is 
+    also accessible by right-clicking the system tray icon.
+  • System Start-up: Toggle the start-up checkbox in the bottom-left corner to 
+    ‘Enabled on system start-up’ to ensure Pasted runs automatically when the 
+    system boots.
+  • Background Execution: Closing the main window minimises Pasted to the system 
+    tray. It continues to work in the background. To exit it completely, navigate 
+    to ‘Controls’ → ‘Exit Application’ or right-click the system tray icon and 
+    choose ‘Exit Application’.
+
+
+LIMITATIONS
+__________________________________________________________________________________
+
+  • Permissions: If the target application is running with administrative 
+    privileges while Pasted is running as a standard user, the Windows User 
+    Account Control (UAC) may block the definitions from reaching the target.
+  • Third-Party Interference: Aggressive clipboard managers, remote desktop 
+    protocols (RDP), or intensive security configurations may interfere with 
+    Pasted’s functionality.

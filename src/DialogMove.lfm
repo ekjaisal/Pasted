@@ -1,0 +1,101 @@
+object frmDialogMove: TfrmDialogMove
+  Left = 500
+  Height = 166
+  Top = 250
+  Width = 466
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Move Triggers'
+  ClientHeight = 166
+  ClientWidth = 466
+  DesignTimePPI = 144
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -18
+  Font.Name = 'Arial'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  Position = poMainFormCenter
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  object lblCollection: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    Left = 20
+    Height = 21
+    Top = 20
+    Width = 426
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 20
+    Caption = 'Select Destination Collection'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object cmbCollection: TComboBox
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblCollection
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 20
+    Height = 29
+    Top = 61
+    Width = 426
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 20
+    ItemHeight = 21
+    PopupMenu = pmnSuppress
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object pnlAction: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 20
+    Height = 35
+    Top = 111
+    Width = 426
+    Anchors = [akLeft, akRight, akBottom]
+    BorderSpacing.Around = 20
+    BevelOuter = bvNone
+    ClientHeight = 35
+    ClientWidth = 426
+    ParentBackground = False
+    TabOrder = 1
+    object btnSave: TButton
+      AnchorSideRight.Control = pnlAction
+      AnchorSideRight.Side = asrBottom
+      Left = 326
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      Caption = 'Move'
+      TabOrder = 0
+      OnClick = btnSaveClick
+    end
+    object btnCancel: TButton
+      AnchorSideRight.Control = btnSave
+      Left = 206
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 20
+      Caption = 'Cancel'
+      TabOrder = 1
+      OnClick = btnCancelClick
+    end
+  end
+  object pmnSuppress: TPopupMenu
+    Left = 56
+    Top = 96
+  end
+end

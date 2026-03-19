@@ -1,0 +1,244 @@
+object frmDialogDefinition: TfrmDialogDefinition
+  Left = 500
+  Height = 600
+  Top = 250
+  Width = 720
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Definition Editor'
+  ClientHeight = 600
+  ClientWidth = 720
+  DesignTimePPI = 144
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -18
+  Font.Name = 'Arial'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  Position = poMainFormCenter
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnShow = FormShow
+  object lblName: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    Left = 20
+    Height = 21
+    Top = 20
+    Width = 51
+    BorderSpacing.Around = 20
+    Caption = 'Name'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object edtName: TEdit
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblName
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 20
+    Height = 29
+    Top = 61
+    Width = 680
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 20
+    ParentShowHint = False
+    PopupMenu = pmnDialogDefinition
+    ShowHint = True
+    TabOrder = 0
+    TextHint = 'e.g. Workplace Address'
+  end
+  object lblTrigger: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = edtName
+    AnchorSideTop.Side = asrBottom
+    Left = 20
+    Height = 21
+    Top = 110
+    Width = 62
+    BorderSpacing.Around = 20
+    Caption = 'Trigger'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object edtTrigger: TEdit
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblTrigger
+    AnchorSideTop.Side = asrBottom
+    Left = 20
+    Height = 29
+    Top = 151
+    Width = 330
+    BorderSpacing.Around = 20
+    PopupMenu = pmnDialogDefinition
+    TabOrder = 1
+    TextHint = 'e.g. ;adw'
+  end
+  object lblCollection: TLabel
+    AnchorSideLeft.Control = edtTrigger
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = edtName
+    AnchorSideTop.Side = asrBottom
+    Left = 370
+    Height = 21
+    Top = 110
+    Width = 88
+    BorderSpacing.Around = 20
+    Caption = 'Collection'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object cmbCollection: TComboBox
+    AnchorSideLeft.Control = edtTrigger
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = lblCollection
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 370
+    Height = 29
+    Top = 151
+    Width = 330
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 20
+    ItemHeight = 21
+    PopupMenu = pmnSuppress
+    TabOrder = 2
+  end
+  object lblDefinition: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = edtTrigger
+    AnchorSideTop.Side = asrBottom
+    Left = 20
+    Height = 21
+    Top = 200
+    Width = 84
+    BorderSpacing.Around = 20
+    Caption = 'Definition'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object pnlAction: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 20
+    Height = 35
+    Top = 545
+    Width = 680
+    Anchors = [akLeft, akRight, akBottom]
+    BorderSpacing.Around = 20
+    BevelOuter = bvNone
+    ClientHeight = 35
+    ClientWidth = 680
+    ParentBackground = False
+    TabOrder = 4
+    object btnSave: TButton
+      AnchorSideRight.Control = pnlAction
+      AnchorSideRight.Side = asrBottom
+      Left = 580
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      Caption = 'Save'
+      TabOrder = 0
+      OnClick = btnSaveClick
+    end
+    object btnCancel: TButton
+      AnchorSideRight.Control = btnSave
+      Left = 460
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 20
+      Caption = 'Cancel'
+      TabOrder = 1
+      OnClick = btnCancelClick
+    end
+  end
+  object memDefinition: TMemo
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblDefinition
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = pnlAction
+    Left = 20
+    Height = 284
+    Top = 241
+    Width = 680
+    Anchors = [akTop, akLeft, akBottom]
+    BorderSpacing.Around = 20
+    BorderStyle = bsNone
+    Color = clWindow
+    PopupMenu = pmnDialogDefinition
+    ScrollBars = ssAutoVertical
+    TabOrder = 3
+  end
+  object pmnDialogDefinition: TPopupMenu
+    Images = dmShared.ilIcon
+    ImagesWidth = 18
+    OnPopup = pmnDialogDefinitionPopup
+    Left = 232
+    Top = 368
+    object mniDialogDefinitionCopy: TMenuItem
+      Caption = 'Copy'
+      ImageIndex = 21
+      OnClick = mniDialogDefinitionCopyClick
+    end
+    object mniDialogDefinitionPaste: TMenuItem
+      Caption = 'Paste'
+      ImageIndex = 24
+      OnClick = mniDialogDefinitionPasteClick
+    end
+    object mniDialogDefinitionCut: TMenuItem
+      Caption = 'Cut'
+      ImageIndex = 25
+      OnClick = mniDialogDefinitionCutClick
+    end
+    object mniDialogDefinitionSep2: TMenuItem
+      Caption = '-'
+    end
+    object mniDialogDefinitionSelectAll: TMenuItem
+      Caption = 'Select All'
+      ImageIndex = 22
+      OnClick = mniDialogDefinitionSelectAllClick
+    end
+    object mniDialogDefinitionSep3: TMenuItem
+      Caption = '-'
+    end
+    object mniDialogDefinitionReadingOrder: TMenuItem
+      Caption = 'Toggle Reading Order'
+      ImageIndex = 23
+      OnClick = mniDialogDefinitionReadingOrderClick
+    end
+  end
+  object pmnSuppress: TPopupMenu
+    Left = 408
+    Top = 368
+  end
+end

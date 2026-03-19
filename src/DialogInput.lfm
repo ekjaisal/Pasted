@@ -1,0 +1,142 @@
+object frmDialogInput: TfrmDialogInput
+  Left = 500
+  Height = 176
+  Top = 250
+  Width = 500
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Pasted'
+  ClientHeight = 176
+  ClientWidth = 500
+  DesignTimePPI = 144
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -18
+  Font.Name = 'Arial'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  Position = poMainFormCenter
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnShow = FormShow
+  object lblPrompt: TLabel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 20
+    Height = 21
+    Top = 20
+    Width = 460
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 20
+    Caption = 'Please enter a value'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -18
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object edtInput: TEdit
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = lblPrompt
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 20
+    Height = 29
+    Top = 61
+    Width = 460
+    Anchors = [akTop, akLeft, akRight]
+    AutoSize = False
+    BorderSpacing.Around = 20
+    PopupMenu = pmnDialogInput
+    TabOrder = 0
+  end
+  object pnlAction: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 20
+    Height = 38
+    Top = 118
+    Width = 460
+    Anchors = [akLeft, akRight, akBottom]
+    BorderSpacing.Around = 20
+    BevelOuter = bvNone
+    ClientHeight = 38
+    ClientWidth = 460
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 1
+    object btnSave: TButton
+      AnchorSideTop.Control = pnlAction
+      AnchorSideRight.Control = pnlAction
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = pnlAction
+      AnchorSideBottom.Side = asrBottom
+      Left = 360
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      Caption = 'Save'
+      TabOrder = 0
+      OnClick = btnSaveClick
+    end
+    object btnCancel: TButton
+      AnchorSideTop.Control = pnlAction
+      AnchorSideRight.Control = btnSave
+      AnchorSideBottom.Control = pnlAction
+      AnchorSideBottom.Side = asrBottom
+      Left = 240
+      Height = 35
+      Top = 0
+      Width = 100
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 20
+      Caption = 'Cancel'
+      TabOrder = 1
+      OnClick = btnCancelClick
+    end
+  end
+  object pmnDialogInput: TPopupMenu
+    Images = dmShared.ilIcon
+    ImagesWidth = 18
+    OnPopup = pmnDialogInputPopup
+    Left = 80
+    Top = 104
+    object mniDialogInputCopy: TMenuItem
+      Caption = 'Copy'
+      ImageIndex = 21
+      OnClick = mniDialogInputCopyClick
+    end
+    object mniDialogInputPaste: TMenuItem
+      Caption = 'Paste'
+      ImageIndex = 24
+      OnClick = mniDialogInputPasteClick
+    end
+    object mniDialogInputCut: TMenuItem
+      Caption = 'Cut'
+      ImageIndex = 25
+      OnClick = mniDialogInputCutClick
+    end
+    object mniDialogInputSep1: TMenuItem
+      Caption = '-'
+    end
+    object mniDialogInputSelectAll: TMenuItem
+      Caption = 'Select All'
+      ImageIndex = 22
+      OnClick = mniDialogInputSelectAllClick
+    end
+    object mniDialogInputReadingOrder: TMenuItem
+      Caption = 'Toggle Reading Order'
+      ImageIndex = 23
+      OnClick = mniDialogInputReadingOrderClick
+    end
+  end
+end

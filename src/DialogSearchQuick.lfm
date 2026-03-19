@@ -1,0 +1,130 @@
+object frmDialogSearchQuick: TfrmDialogSearchQuick
+  Left = 600
+  Height = 430
+  Top = 300
+  Width = 540
+  BorderIcons = [biSystemMenu]
+  Caption = 'Pasted'
+  ClientHeight = 430
+  ClientWidth = 540
+  Color = clWindow
+  DesignTimePPI = 144
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -18
+  Font.Name = 'Arial'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  KeyPreview = True
+  Position = poScreenCenter
+  ShowInTaskBar = stNever
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  object pnlSearch: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 0
+    Height = 69
+    Top = 0
+    Width = 540
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvNone
+    ClientHeight = 69
+    ClientWidth = 540
+    ParentBackground = False
+    TabOrder = 0
+    object edtSearch: TEdit
+      AnchorSideLeft.Control = pnlSearch
+      AnchorSideTop.Control = pnlSearch
+      AnchorSideRight.Control = pnlSearch
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = pnlSearch
+      AnchorSideBottom.Side = asrBottom
+      Left = 20
+      Height = 29
+      Top = 20
+      Width = 500
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      BorderSpacing.Around = 20
+      BorderStyle = bsNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -20
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      ParentFont = False
+      PopupMenu = pmnSuppress
+      TabOrder = 0
+      TextHint = 'Search by name, trigger, or definition'
+      OnChange = edtSearchChange
+      OnKeyDown = edtSearchKeyDown
+    end
+  end
+  object pnlSeparator: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = pnlSearch
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 0
+    Height = 1
+    Top = 69
+    Width = 540
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvNone
+    Color = 15000804
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 2
+  end
+  object vstResults: TVirtualStringTree
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = pnlSeparator
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 20
+    Height = 320
+    Top = 90
+    Width = 500
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Around = 20
+    BorderStyle = bsNone
+    DefaultText = 'Node'
+    Header.AutoSizeIndex = 0
+    Header.Columns = <    
+      item
+        Position = 0
+        Text = 'Name'
+        Width = 360
+      end    
+      item
+        Alignment = taRightJustify
+        Position = 1
+        Text = 'Trigger'
+        Width = 140
+      end>
+    Header.Options = [hoAutoResize, hoColumnResize]
+    Header.ParentFont = True
+    Indent = 0
+    Margin = 0
+    TabOrder = 1
+    TextMargin = 8
+    TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages]
+    TreeOptions.SelectionOptions = [toFullRowSelect]
+    OnClick = vstResultsClick
+    OnFreeNode = vstResultsFreeNode
+    OnGetText = vstResultsGetText
+    OnKeyDown = vstResultsKeyDown
+  end
+  object pmnSuppress: TPopupMenu
+    Left = 248
+    Top = 200
+  end
+end
