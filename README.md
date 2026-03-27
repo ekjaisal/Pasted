@@ -112,10 +112,8 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
 
 ## Acknowledgements
 
-Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org)/[Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefitted significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
+Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org)/[Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefited significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
 
 ## License
 
 This project is licensed under the BSD 3-Clause License and is provided as-is, without any warranties. Please see the [LICENSE](LICENSE) file for details.
-
-[![Sponsor](https://img.shields.io/badge/Sponsor-66023C?style=flat-square&labelColor=141414&logo=githubsponsors&logoColor=F5F3EF)](https://sponsor.jaisal.in)
