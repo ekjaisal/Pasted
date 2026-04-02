@@ -38,13 +38,16 @@ ManifestDPIAware true
 ManifestSupportedOS Win10
 
 !define APP_NAME "Pasted"
-!define APP_VERSION "1.0.0"
-!define APP_BUILD "204"
+!define APP_EXE "Pasted.exe"
+
+!getdllversion "..\bin\${APP_EXE}" ext_ver_
+!define APP_VERSION "${ext_ver_1}.${ext_ver_2}.${ext_ver_3}"
+!define APP_BUILD "${ext_ver_4}"
+
 !define APP_PUBLISHER "Jaisal E. K."
 !define APP_WEBSITE "https://pasted.jaisal.in"
 !define APP_COPYRIGHT_YEAR "2026"
 !define APP_COMMENT "Pass Trigger; Emit Definition"
-!define APP_EXE "Pasted.exe"
 !define APP_GUID "{A1F35CDC-6DDF-42A7-9C9C-064D794C3E52}"
 
 Name "${APP_NAME}"
