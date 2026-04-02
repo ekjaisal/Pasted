@@ -113,7 +113,7 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
 
 ## Acknowledgements
 
-Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org) and [Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefited significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
+Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org) and the [Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefited significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
 
 ## License
 
