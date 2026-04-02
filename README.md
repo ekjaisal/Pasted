@@ -53,7 +53,7 @@ The application uses a local [SQLite3](https://sqlite.org) database for data sto
 
 2. Install and launch the application.
 
-   **Note:** Windows SmartScreen may flag the installer as an unrecognised application. Provided the installer is sourced from the locations specified in step 1, bypass the prompt by clicking **More info** → **Run anyway**. For added assurance, [verify](#verification) the PGP signature.
+   **Note:** Windows SmartScreen may flag the installer as an unrecognised application. Provided the installer is sourced from the locations specified in step 1, bypass the prompt by clicking **More info** → **Run anyway**. For added assurance, [verify](#verification) the `SHA256SUMS`.
 
 3. Add or import triggers to get Pasted springing into action.
 
@@ -65,9 +65,10 @@ The application uses a local [SQLite3](https://sqlite.org) database for data sto
 
 ## Verification
 
-Released installers are signed with a PGP key. The public key is available on [keys.openpgp.org](https://keys.openpgp.org).
+A PGP signed `SHA256SUMS` file is included with the release artifacts for verifying integrity.
 
 **Fingerprint:** `C4A8 E4F9 1650 7DD9 49D4 5DF8 B4ED 8851 B020 2101`
+**Key Server:** [keys.openpgp.org](https://keys.openpgp.org)
 
 ## Limitations
 
@@ -112,8 +113,8 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
 
 ## Acknowledgements
 
-Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org)/[Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefited significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
+Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org) and [Free Pascal Compiler](https://www.freepascal.org) and relies on third-party libraries and resources. Please see the [NOTICE](NOTICE) file for details. The project has benefited significantly from Google [Gemini 3.1 Pro](https://deepmind.google/models/model-cards/gemini-3-1-pro)’s assistance for ideation, code generation, and refactoring.
 
 ## License
 
-This project is licensed under the BSD 3-Clause License and is provided as-is, without any warranties. Please see the [LICENSE](LICENSE) file for details.
+The project is under the BSD 3-Clause License and is provided “as-is”, without any warranties. Please see the [LICENSE](LICENSE) file for details.
