@@ -29,7 +29,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <BuildNr Value="205"/>
+      <BuildNr Value="209"/>
       <Language Value="0809"/>
       <StringTable Comments="Pass Trigger; Emit Definition" CompanyName="Jaisal E. K." FileDescription="Pasted" InternalName="Pasted" LegalCopyright="© 2026 Jaisal E. K." OriginalFilename="Pasted.exe" ProductName="Pasted" ProductVersion="1.0.0"/>
     </VersionInfo>
