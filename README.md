@@ -117,4 +117,4 @@ Pasted is built using the [Lazarus IDE](https://www.lazarus-ide.org) and the [Fr
 
 ## License
 
-The project is under the BSD 3-Clause License and is provided “as-is”, without any warranties. Please see the [LICENSE](LICENSE) file for details.
+The project is under the BSD 3-Clause License and is provided “as is”, without any warranties. Please see the [LICENSE](LICENSE) file for details.
