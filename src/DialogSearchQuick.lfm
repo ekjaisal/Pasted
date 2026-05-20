@@ -81,7 +81,7 @@ object frmDialogSearchQuick: TfrmDialogSearchQuick
     ParentColor = False
     TabOrder = 2
   end
-  object vstResults: TVirtualStringTree
+  object vstResults: TLazVirtualStringTree
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = pnlSeparator
     AnchorSideTop.Side = asrBottom

@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, DateUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, VirtualTrees, Menus, LCLIntf, Clipbrd, Buttons,
+  StdCtrls, ComCtrls, laz.VirtualTrees, Menus, LCLIntf, Clipbrd, Buttons,
   AppFont, AppIdentity, ServiceHook, MonoLexID, DialogDefinition, 
   DialogInput, DialogAbout, StaticSQLite, ServiceResolve,
   ServiceDatabase, ServiceSettings, DialogSearchQuick, DialogMove
@@ -138,8 +138,8 @@ type
     splMiddle: TSplitter;
     SearchTimer: TTimer;
     TrayIcon: TTrayIcon;
-    vstCollection: TVirtualStringTree;
-    vstTrigger: TVirtualStringTree;
+    vstCollection: TLazVirtualStringTree;
+    vstTrigger: TLazVirtualStringTree;
 
     procedure btnRefreshClick(Sender: TObject);
     procedure btnTriggerMoveClick(Sender: TObject);
@@ -1400,7 +1400,7 @@ begin
   Data1 := Sender.GetNodeData(Node1);
   Data2 := Sender.GetNodeData(Node2);
   
-  if TVirtualStringTree(Sender).Header.SortDirection = sdAscending then DirectionMod := 1 else DirectionMod := -1;
+  if TLazVirtualStringTree(Sender).Header.SortDirection = sdAscending then DirectionMod := 1 else DirectionMod := -1;
   if Data1^.ID = COLLECTION_ALL_ID then begin Result := -1 * DirectionMod; Exit; end;
   if Data2^.ID = COLLECTION_ALL_ID then begin Result := 1 * DirectionMod; Exit; end;
 

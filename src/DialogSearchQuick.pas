@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  LCLType, Menus, VirtualTrees, AppFont, StaticSQLite
+  LCLType, Menus, laz.VirtualTrees, AppFont, StaticSQLite
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type
@@ -54,7 +54,7 @@ type
     pnlSearch: TPanel;
     pnlSeparator: TPanel;
     pmnSuppress: TPopupMenu;
-    vstResults: TVirtualStringTree;
+    vstResults: TLazVirtualStringTree;
     procedure edtSearchChange(Sender: TObject);
     procedure edtSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
