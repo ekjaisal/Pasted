@@ -35,7 +35,7 @@ interface
 
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
-  SysUtils, AppFont, StaticSQLite;
+  SysUtils, StaticSQLite;
 
 type
   { TfrmDialogMove }
@@ -58,6 +58,9 @@ type
   end;
 
 implementation
+
+uses
+  AppFont;
 
 {$R *.lfm}
 

@@ -34,8 +34,8 @@ unit DialogDefinition;
 interface
 
 uses
-  Classes, Clipbrd, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
-  StdCtrls, SysUtils, AppFont, MonoLexID, StaticSQLite;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils, StaticSQLite;
 
 type
   { TfrmDialogDefinition }
@@ -76,6 +76,9 @@ type
   end;
 
 implementation
+
+uses
+  Clipbrd, LCLType, AppFont, MonoLexID;
 
 {$R *.lfm}
 

@@ -34,8 +34,8 @@ unit DialogInput;
 interface
 
 uses
-  Classes, Clipbrd, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
-  StdCtrls, SysUtils, AppFont;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils;
 
 type
   { TfrmDialogInput }
@@ -67,6 +67,9 @@ type
   end;
 
 implementation
+
+uses
+  Clipbrd, LCLType, AppFont;
 
 {$R *.lfm}
 

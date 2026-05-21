@@ -34,9 +34,8 @@ unit DialogSearchQuick;
 interface
 
 uses
-  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
-  StdCtrls, SysUtils, laz.VirtualTrees, AppFont, StaticSQLite
-  {$IFDEF WINDOWS}, Windows{$ENDIF};
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils, laz.VirtualTrees, StaticSQLite;
 
 type
   PDialogSearchQuickData = ^TDialogSearchQuickData;
@@ -80,7 +79,7 @@ var
 implementation
 
 uses
-  ServiceHook;
+  LCLType, AppFont, ServiceHook {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$R *.lfm}
 
