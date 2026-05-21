@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -49,6 +46,7 @@ type
     Trigger: String;
   end;
 
+  { TfrmDialogSearchQuick }
   TfrmDialogSearchQuick = class(TForm)
     edtSearch: TEdit;
     pnlSearch: TPanel;
@@ -61,15 +59,15 @@ type
     procedure FormDeactivate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure vstResultsClick(Sender: TObject);
     procedure vstResultsFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+    procedure vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     FDB: TStaticSQLite;
     FSelectedID: String;
-    procedure PerformSearch;
     procedure ExecuteSelected;
+    procedure PerformSearch;
     procedure ProcessSearchRow(const Row: array of String);
     procedure UpdateInterfaceState;
   public
@@ -98,15 +96,12 @@ begin
     Dlg.FormStyle := fsStayOnTop;
     Dlg.FSelectedID := '';
     Dlg.Show;
-
     {$IFDEF WINDOWS}
     SetForegroundWindow(Dlg.Handle);
     {$ENDIF}
-
     while Dlg.Visible and not Application.Terminated do
     begin
       Application.ProcessMessages;
-
       {$IFDEF WINDOWS}
       StillActive := (GetForegroundWindow = Dlg.Handle);
       if not StillActive and (Dlg.FSelectedID = '') then
@@ -115,10 +110,8 @@ begin
         if GetForegroundWindow <> Dlg.Handle then Dlg.Close;
       end;
       {$ENDIF}
-
       Sleep(10);
     end;
-
     Result := Dlg.FSelectedID;
   finally
     Dlg.Free;
@@ -180,10 +173,8 @@ begin
     vstResults.Clear;
     Exit;
   end;
-
   SVal := QuotedStr('%' + Trim(edtSearch.Text) + '%');
   SQL := 'SELECT id, name, trigger_word FROM definitions WHERE (name LIKE ' + SVal + ' OR trigger_word LIKE ' + SVal + ' OR definition_text LIKE ' + SVal + ') ORDER BY last_triggered DESC LIMIT 15';
-
   vstResults.BeginUpdate;
   try
     vstResults.Clear;
@@ -191,7 +182,6 @@ begin
   finally
     vstResults.EndUpdate;
   end;
-
   if vstResults.TotalCount > 0 then
   begin
     vstResults.FocusedNode := vstResults.GetFirst;

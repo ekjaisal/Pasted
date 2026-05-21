@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -65,23 +62,21 @@ type
   TServiceResolve = class
   private
     FDB: TStaticSQLite;
-    FTriggerMap: specialize TDictionary<String, String>;
-    FLastTriggeredWord: String;
     FLastTriggeredMonoLexID: String;
+    FLastTriggeredWord: String;
+    FTriggerMap: specialize TDictionary<String, String>;
     {$IFDEF WINDOWS}
     FClipboardBackup: array of TClipboardFormatData;
     {$ENDIF}
-
     function ProcessDynamicContent(const InputText: String): String;
-    procedure ProcessSubstitutionAsync;
     procedure ProcessResolveRow(const Row: array of String);
+    procedure ProcessSubstitutionAsync;
   public
     constructor Create(ADB: TStaticSQLite);
     destructor Destroy; override;
-
-    procedure RebuildIndex;
     function OnKeyLogResolve(const CurrentBuffer: String; out MatchedTrigger: String; out MatchedMonoLexID: String): Boolean;
     procedure OnSnippetTriggered(const Keyword, DefinitionID: String);
+    procedure RebuildIndex;
     procedure RestoreClipboard;
   end;
 
@@ -122,6 +117,7 @@ type
   end;
 
 function SendInput(cInputs: UINT; pInputs: Pointer; cbSize: Integer): UINT; stdcall; external 'user32.dll';
+
 function GetGUIThreadInfo(idThread: DWORD; pgui: PGUIThreadInfo): BOOL; stdcall; external 'user32.dll';
 
 function CloneClipboardHandle(Format: UINT; Data: THandle): THandle;
@@ -131,7 +127,6 @@ var
 begin
   Result := 0;
   if Data = 0 then Exit;
-
   if Format = CF_BITMAP then
   begin
     Result := CopyImage(Data, 0, 0, 0, $0004);
@@ -182,7 +177,6 @@ var
   TargetPID, OurPID, TargetThreadID: DWORD;
   WaitTimeout: Integer;
   GUIInfo: TGUITHREADINFO;
-
   procedure AddKey(VK: WORD; KeyUp: Boolean; Extended: Boolean = False);
   begin
     Inputs[CurrentIdx].Itype := INPUT_KEYBOARD;
@@ -193,11 +187,9 @@ var
     if KeyUp then Inputs[CurrentIdx].ki.dwFlags := Inputs[CurrentIdx].ki.dwFlags or KEYEVENTF_KEYUP;
     Inc(CurrentIdx);
   end;
-
 begin
   OurPID := GetCurrentProcessId();
   WaitTimeout := 0;
-
   if Length(FTriggerWord) = 0 then
   begin
     repeat
@@ -209,14 +201,12 @@ begin
         TargetPID := 0;
         TargetThreadID := 0;
       end;
-
       if TargetPID = OurPID then
       begin
         Sleep(10);
         Inc(WaitTimeout, 10);
       end;
     until (TargetPID <> OurPID) or (WaitTimeout > 500);
-
     if (CurrentFG <> 0) and (TargetPID <> OurPID) then
     begin
       WaitTimeout := 0;
@@ -227,16 +217,13 @@ begin
         Inc(WaitTimeout, 10);
       until WaitTimeout > 250;
     end;
-
     Sleep(50);
   end
   else
   begin
     Sleep(40);
   end;
-
   Inputs := nil;
-
   ReleaseLShift := (GetAsyncKeyState(VK_LSHIFT) and $8000) <> 0;
   ReleaseRShift := (GetAsyncKeyState(VK_RSHIFT) and $8000) <> 0;
   ReleaseLCtrl := (GetAsyncKeyState(VK_LCONTROL) and $8000) <> 0;
@@ -245,7 +232,6 @@ begin
   ReleaseRAlt := (GetAsyncKeyState(VK_RMENU) and $8000) <> 0;
   ReleaseLWin := (GetAsyncKeyState(VK_LWIN) and $8000) <> 0;
   ReleaseRWin := (GetAsyncKeyState(VK_RWIN) and $8000) <> 0;
-
   InputCount := 0;
   if ReleaseLShift then Inc(InputCount);
   if ReleaseRShift then Inc(InputCount);
@@ -255,13 +241,11 @@ begin
   if ReleaseRAlt then Inc(InputCount);
   if ReleaseLWin then Inc(InputCount);
   if ReleaseRWin then Inc(InputCount);
-
   if InputCount > 0 then
   begin
     SetLength(Inputs, InputCount);
     FillChar(Inputs[0], SizeOf(TInput) * InputCount, 0);
     CurrentIdx := 0;
-
     if ReleaseLShift then AddKey(VK_LSHIFT, True);
     if ReleaseRShift then AddKey(VK_RSHIFT, True);
     if ReleaseLCtrl then AddKey(VK_LCONTROL, True);
@@ -270,11 +254,9 @@ begin
     if ReleaseRAlt then AddKey(VK_RMENU, True, True);
     if ReleaseLWin then AddKey(VK_LWIN, True, True);
     if ReleaseRWin then AddKey(VK_RWIN, True, True);
-
     SendInput(InputCount, @Inputs[0], SizeOf(TInput));
     Sleep(20);
   end;
-
   if Length(FTriggerWord) > 0 then
   begin
     BackspacesNeeded := Length(FTriggerWord) - 1;
@@ -292,20 +274,15 @@ begin
       Sleep(20);
     end;
   end;
-
   SetLength(Inputs, 4);
   FillChar(Inputs[0], SizeOf(TInput) * 4, 0);
   CurrentIdx := 0;
-
   AddKey(VK_CONTROL, False);
   AddKey(VK_V, False);
   AddKey(VK_V, True);
   AddKey(VK_CONTROL, True);
-
   SendInput(4, @Inputs[0], SizeOf(TInput));
-
   Sleep(300);
-
   Synchronize(@TriggerRestore);
 end;
 {$ENDIF}
@@ -337,12 +314,10 @@ var
   Res: TDBResult;
 begin
   if not Assigned(FDB) then Exit;
-
   FTriggerMap.Clear;
   Res := FDB.Query('SELECT COUNT(*) FROM definitions');
   if Length(Res) > 0 then
     FTriggerMap.Capacity := StrToIntDef(Res[0][0], 0);
-
   FDB.QueryProc('SELECT trigger_word, id FROM definitions', @ProcessResolveRow);
 end;
 
@@ -380,36 +355,30 @@ var
 begin
   Result := InputText;
   CurrentPos := 1;
-
   repeat
     PStart := PosEx('${', Result, CurrentPos);
     if PStart = 0 then Break;
-
     if (PStart > 1) and (Result[PStart - 1] = '\') then
     begin
       Delete(Result, PStart - 1, 1);
       CurrentPos := PStart + 1;
       Continue;
     end;
-
     PEnd := PosEx('}', Result, PStart);
     if PEnd = 0 then
     begin
       CurrentPos := PStart + 1;
       Continue;
     end;
-
     Tag := Copy(Result, PStart + 2, PEnd - (PStart + 2));
     Replacement := '';
     IsHandled := False;
-
     try
       Replacement := FormatDateTime(Tag, Now);
       IsHandled := True;
     except
       IsHandled := False;
     end;
-
     if IsHandled then
     begin
       Delete(Result, PStart, (PEnd - PStart) + 1);
@@ -445,17 +414,13 @@ var
   {$ENDIF}
 begin
   if not Assigned(FDB) then Exit;
-
   Res := FDB.Query('SELECT definition_text FROM definitions WHERE id = ' + QuotedStr(FLastTriggeredMonoLexID));
   if Length(Res) = 0 then Exit;
-
   DefinitionText := ProcessDynamicContent(Res[0][0]);
-
   {$IFDEF WINDOWS}
   SetLength(FClipboardBackup, 0);
   Retries := 0;
   Success := False;
-
   while (Retries < 25) and not Success do
   begin
     if OpenClipboard(0) then
@@ -488,7 +453,6 @@ begin
       Inc(Retries);
     end;
   end;
-
   WStr := UnicodeString(DefinitionText);
   HText := GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, (Length(WStr) + 1) * SizeOf(WideChar));
   if HText <> 0 then
@@ -500,11 +464,9 @@ begin
       GlobalUnlock(HText);
     end;
   end;
-
   FmtExclude := RegisterClipboardFormat('ExcludeClipboardContentFromMonitorUI');
   FmtHistory := RegisterClipboardFormat('CanIncludeInClipboardHistory');
   FmtIgnore := RegisterClipboardFormat('Clipboard Viewer Ignore');
-
   HEx1 := GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, SizeOf(DWORD));
   if HEx1 <> 0 then
   begin
@@ -515,7 +477,6 @@ begin
       GlobalUnlock(HEx1);
     end;
   end;
-
   HEx2 := GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, SizeOf(DWORD));
   if HEx2 <> 0 then
   begin
@@ -526,9 +487,7 @@ begin
       GlobalUnlock(HEx2);
     end;
   end;
-
   HEx3 := GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, 1);
-
   Retries := 0;
   Success := False;
   while (Retries < 25) and not Success do
@@ -549,13 +508,11 @@ begin
       Inc(Retries);
     end;
   end;
-
   if HText <> 0 then GlobalFree(HText);
   if HEx1 <> 0 then GlobalFree(HEx1);
   if HEx2 <> 0 then GlobalFree(HEx2);
   if HEx3 <> 0 then GlobalFree(HEx3);
   {$ENDIF}
-
   if Success then
   begin
     if Assigned(ServiceHook.GlobalEngine) then ServiceHook.GlobalEngine.Suspend;
@@ -573,10 +530,8 @@ var
 begin
   {$IFDEF WINDOWS}
   if Length(FClipboardBackup) = 0 then Exit;
-
   Success := False;
   Retries := 0;
-
   while (Retries < 30) and not Success do
   begin
     if OpenClipboard(0) then
@@ -609,7 +564,6 @@ begin
       Inc(Retries);
     end;
   end;
-
   if not Success then
   begin
     for i := Low(FClipboardBackup) to High(FClipboardBackup) do
@@ -625,7 +579,6 @@ begin
       end;
     end;
   end;
-
   SetLength(FClipboardBackup, 0);
   {$ENDIF}
 end;

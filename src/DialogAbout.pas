@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -46,37 +43,36 @@ type
   { TfrmDialogAbout }
   TfrmDialogAbout = class(TForm)
     btnClose: TButton;
-    btnWebsite: TSpeedButton;
+    btnCopyright: TSpeedButton;
     btnRepository: TSpeedButton;
     btnSponsor: TSpeedButton;
-    btnCopyright: TSpeedButton;
-    memLicense: TMemo;
-    memThirdParty: TMemo;
-    memUserGuide: TMemo;
+    btnWebsite: TSpeedButton;
     ilDialogAboutIcon: TImageList;
     imgLogo: TPaintBox;
     lblAppName: TLabel;
-    lblVersion: TLabel;
     lblTagline: TLabel;
-    mniDialogAboutMemoSelectAll: TMenuItem;
+    lblVersion: TLabel;
+    memLicense: TMemo;
+    memThirdParty: TMemo;
+    memUserGuide: TMemo;
     mniDialogAboutMemoCopy: TMenuItem;
-    pnlIdentity: TPanel;
-    pnlNameVersionTag: TPanel;
+    mniDialogAboutMemoSelectAll: TMenuItem;
     pcAbout: TPageControl;
     pmnDialogAboutMemo: TPopupMenu;
+    pnlGuideBackground: TPanel;
+    pnlIdentity: TPanel;
+    pnlInfoBackground: TPanel;
+    pnlLicenseBackground: TPanel;
+    pnlNameVersionTag: TPanel;
+    pnlThirdPartyBackground: TPanel;
     tsInfo: TTabSheet;
-    tsUserGuide: TTabSheet;
     tsLicense: TTabSheet;
     tsThirdParty: TTabSheet;
-    pnlInfoBackground: TPanel;
-    pnlGuideBackground: TPanel;
-    pnlLicenseBackground: TPanel;
-    pnlThirdPartyBackground: TPanel;
-
+    tsUserGuide: TTabSheet;
+    procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure imgLogoPaint(Sender: TObject);
     procedure LinkClick(Sender: TObject);
-    procedure btnCloseClick(Sender: TObject);
     procedure memCaretHide(Sender: TObject);
     procedure mniDialogAboutMemoCopyClick(Sender: TObject);
     procedure mniDialogAboutMemoSelectAllClick(Sender: TObject);
@@ -97,11 +93,9 @@ var
 procedure TfrmDialogAbout.FormCreate(Sender: TObject);
 begin
   ApplyAppFont(Self);
-
   lblAppName.Caption := APP_NAME;
   lblVersion.Caption := 'Version ' + APP_VERSION;
   lblTagline.Caption := APP_TAGLINE;
-
   LoadResourceText('USERGUIDE', memUserGuide);
   LoadResourceText('LICENSE', memLicense);
   LoadResourceText('NOTICE', memThirdParty);
@@ -127,7 +121,6 @@ procedure TfrmDialogAbout.imgLogoPaint(Sender: TObject);
 begin
   imgLogo.Canvas.Brush.Color := clWindow;
   imgLogo.Canvas.FillRect(imgLogo.ClientRect);
-
   RenderAppLogo(imgLogo.Canvas, 0, 0, imgLogo.Height);
 end;
 
@@ -197,7 +190,6 @@ begin
     {$ENDIF}
     Exit;
   end;
-
   FAboutInstance := TfrmDialogAbout.Create(nil);
   try
     if (ATabIndex >= 0) and (ATabIndex < FAboutInstance.pcAbout.PageCount) then

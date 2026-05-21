@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -71,91 +68,91 @@ type
   end;
 
   { TfrmAppBase }
-
   TfrmAppBase = class(TForm)
     btnCollectionAdd: TButton;
+    btnRefresh: TSpeedButton;
     btnTriggerAdd: TButton;
-    btnTriggerEdit: TButton;
     btnTriggerDelete: TButton;
+    btnTriggerEdit: TButton;
+    btnTriggerMove: TButton;
     cbxAutoStart: TCheckBox;
+    dlgBackup: TSaveDialog;
+    dlgExport: TSaveDialog;
+    dlgImport: TOpenDialog;
+    dlgRestore: TOpenDialog;
     edtSearch: TEdit;
     IdleTimer: TTimer;
-    lblStatus: TLabel;
     lblAutoStart: TLabel;
-    mniTreeCollectionExport: TMenuItem;
-    mniTreeCollectionSep1: TMenuItem;
-    mniTreeTriggerDelete: TMenuItem;
-    mniTreeTriggerSep: TMenuItem;
-    mniTreeTriggerMove: TMenuItem;
-    mniTreeTriggerEdit: TMenuItem;
-    mniMemoPreviewReadingOrder: TMenuItem;
-    mniMemoPreviewSep: TMenuItem;
-    mniMemoPreviewSelectAll: TMenuItem;
-    mniMemoPreviewCopy: TMenuItem;
-    mniTrayPauseResume: TMenuItem;
-    mniTrigger: TMenuItem;
-    mniHelpSponsor: TMenuItem;
-    mniHelpLicense: TMenuItem;
-    mniHelpThirdParty: TMenuItem;
-    mniHelpAbout: TMenuItem;
-    mniTriggerImport: TMenuItem;
-    mniTriggerExport: TMenuItem;
+    lblStatus: TLabel;
+    memPreview: TMemo;
+    mniControl: TMenuItem;
+    mniControlExit: TMenuItem;
+    mniControlPauseResume: TMenuItem;
     mniData: TMenuItem;
     mniDataBackup: TMenuItem;
     mniDataRestore: TMenuItem;
     mniHelp: TMenuItem;
+    mniHelpAbout: TMenuItem;
     mniHelpGuide: TMenuItem;
+    mniHelpLicense: TMenuItem;
+    mniHelpSponsor: TMenuItem;
+    mniHelpThirdParty: TMenuItem;
     mniHelpWebsite: TMenuItem;
-    mniControlExit: TMenuItem;
-    mniControlPauseResume: TMenuItem;
-    mniControl: TMenuItem;
-    mnuAppBase: TMainMenu;
-    memPreview: TMemo;
-    mniTreeCollectionDelete: TMenuItem;
-    mniTreeCollectionRename: TMenuItem;
+    mniMemoPreviewCopy: TMenuItem;
+    mniMemoPreviewReadingOrder: TMenuItem;
+    mniMemoPreviewSelectAll: TMenuItem;
+    mniMemoPreviewSep: TMenuItem;
     mniTrayAbout: TMenuItem;
-    mniTraySepOne: TMenuItem;
     mniTrayExit: TMenuItem;
+    mniTrayPauseResume: TMenuItem;
+    mniTraySepOne: TMenuItem;
     mniTrayShow: TMenuItem;
-    btnTriggerMove: TButton;
-    dlgRestore: TOpenDialog;
-    dlgImport: TOpenDialog;
-    pmnTray: TPopupMenu;
-    pnlLeft: TPanel;
-    pnlCollectionAction: TPanel;
-    pnlMiddle: TPanel;
-    pnlSearch: TPanel;
-    pnlPreview: TPanel;
-    pnlPreviewAction: TPanel;
+    mniTreeCollectionDelete: TMenuItem;
+    mniTreeCollectionExport: TMenuItem;
+    mniTreeCollectionRename: TMenuItem;
+    mniTreeCollectionSep1: TMenuItem;
+    mniTreeTriggerDelete: TMenuItem;
+    mniTreeTriggerEdit: TMenuItem;
+    mniTreeTriggerMove: TMenuItem;
+    mniTreeTriggerSep: TMenuItem;
+    mniTrigger: TMenuItem;
+    mniTriggerExport: TMenuItem;
+    mniTriggerImport: TMenuItem;
+    mnuAppBase: TMainMenu;
     pmnCollection: TPopupMenu;
-    dlgBackup: TSaveDialog;
-    dlgExport: TSaveDialog;
-    btnRefresh: TSpeedButton;
     pmnPreview: TPopupMenu;
     pmnSuppress: TPopupMenu;
+    pmnTray: TPopupMenu;
     pmnTrigger: TPopupMenu;
+    pnlCollectionAction: TPanel;
+    pnlLeft: TPanel;
+    pnlMiddle: TPanel;
+    pnlPreview: TPanel;
+    pnlPreviewAction: TPanel;
+    pnlSearch: TPanel;
+    SearchTimer: TTimer;
     splLeft: TSplitter;
     splMiddle: TSplitter;
-    SearchTimer: TTimer;
     TrayIcon: TTrayIcon;
     vstCollection: TLazVirtualStringTree;
     vstTrigger: TLazVirtualStringTree;
-
+    procedure btnCollectionAddClick(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
+    procedure btnTriggerAddClick(Sender: TObject);
+    procedure btnTriggerDeleteClick(Sender: TObject);
+    procedure btnTriggerEditClick(Sender: TObject);
     procedure btnTriggerMoveClick(Sender: TObject);
     procedure cbxAutoStartChange(Sender: TObject);
     procedure edtSearchChange(Sender: TObject);
     procedure edtSearchEnter(Sender: TObject);
     procedure edtSearchExit(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormShow(Sender: TObject);
     procedure FormWindowStateChange(Sender: TObject);
     procedure IdleTimerTimer(Sender: TObject);
-    procedure mniTreeCollectionDeleteClick(Sender: TObject);
-    procedure mniTreeCollectionExportClick(Sender: TObject);
-    procedure mniTreeCollectionRenameClick(Sender: TObject);
+    procedure memPreviewCaretHide(Sender: TObject);
     procedure mniControlExitClick(Sender: TObject);
     procedure mniControlPauseResumeClick(Sender: TObject);
     procedure mniDataBackupClick(Sender: TObject);
@@ -172,6 +169,9 @@ type
     procedure mniTrayAboutClick(Sender: TObject);
     procedure mniTrayExitClick(Sender: TObject);
     procedure mniTrayShowClick(Sender: TObject);
+    procedure mniTreeCollectionDeleteClick(Sender: TObject);
+    procedure mniTreeCollectionExportClick(Sender: TObject);
+    procedure mniTreeCollectionRenameClick(Sender: TObject);
     procedure mniTriggerExportClick(Sender: TObject);
     procedure mniTriggerImportClick(Sender: TObject);
     procedure pmnCollectionPopup(Sender: TObject);
@@ -179,38 +179,32 @@ type
     procedure pmnTriggerPopup(Sender: TObject);
     procedure SearchTimerTimer(Sender: TObject);
     procedure TrayIconDblClick(Sender: TObject);
-    procedure vstCollectionGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure vstCollectionFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vstCollectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vstCollectionCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+    procedure vstCollectionFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstCollectionGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
     procedure vstCollectionHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure vstTriggerChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstTriggerCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure vstTriggerFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure vstTriggerGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure vstTriggerCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure vstTriggerHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
-    procedure btnCollectionAddClick(Sender: TObject);
-    procedure btnTriggerAddClick(Sender: TObject);
-    procedure btnTriggerEditClick(Sender: TObject);
-    procedure btnTriggerDeleteClick(Sender: TObject);
-    procedure memPreviewCaretHide(Sender: TObject);
   private
-    FRealExit: Boolean;
-    FServiceDB: TServiceDatabase;
-    FResolver: TServiceResolve;
     FFS: TFormatSettings;
-    
-    procedure RefreshTriggerList;
+    FRealExit: Boolean;
+    FResolver: TServiceResolve;
+    FServiceDB: TServiceDatabase;
     procedure LoadCollections;
-    procedure UpdatePreview;
-    procedure UpdateAutoStartStatus; 
     procedure ProcessCollectionRow(const Row: array of String);
     procedure ProcessTriggerRow(const Row: array of String);
+    procedure RefreshTriggerList;
     procedure SelectCollectionByID(const ACollectionID: String);
     procedure SelectTriggerByID(const ATriggerID: String);
+    procedure UpdateAutoStartStatus; 
+    procedure UpdatePreview;
     procedure WMHotKey(var Msg: TMessage); message WM_HOTKEY;
-    procedure WMRestore(var Msg: TMessage); message WM_PASTED_RESTORE;
     procedure WMQuit(var Msg: TMessage); message WM_PASTED_QUIT;
+    procedure WMRestore(var Msg: TMessage); message WM_PASTED_RESTORE;
     {$IFDEF WINDOWS}
     procedure WMPowerBroadcast(var Msg: TMessage); message WM_POWERBROADCAST;
     procedure WMSessionChange(var Msg: TMessage); message WM_WTSSESSION_CHANGE;
@@ -234,7 +228,6 @@ const
   PBT_APMSUSPEND = $0004;
   PBT_APMRESUMEAUTOMATIC = $0012;
   PBT_APMRESUMESUSPEND = $0007;
-
   WTS_SESSION_UNLOCK = $8;
   NOTIFY_FOR_THIS_SESSION = 0;
 
@@ -262,40 +255,30 @@ procedure TfrmAppBase.FormCreate(Sender: TObject);
 begin
   ApplyAppFont(Self);
   FRealExit := False;
-
   FFS := DefaultFormatSettings;
   FFS.DateSeparator := '-';
   FFS.TimeSeparator := ':';
   FFS.ShortDateFormat := 'yyyy-mm-dd';
   FFS.LongTimeFormat := 'hh:nn:ss';
-
   FServiceDB := TServiceDatabase.Create;
   FResolver := TServiceResolve.Create(FServiceDB.DB);
-
   TrayIcon.Icon.Assign(Application.Icon);
   vstCollection.NodeDataSize := SizeOf(TCollectionData);
   vstTrigger.NodeDataSize := SizeOf(TTriggerData);
-
   GlobalEngine := TServiceHook.Create;
   GlobalEngine.OnKeyLog := @FResolver.OnKeyLogResolve;
   GlobalEngine.OnTrigger := @FResolver.OnSnippetTriggered;
-
   FResolver.RebuildIndex;
-
   GlobalEngine.Start;
-
   LoadCollections;
   RefreshTriggerList;
   UpdatePreview;
   UpdateAutoStartStatus;
-
   {$IFDEF WINDOWS}
   RegisterHotKey(Handle, 1, MOD_ALT, VK_OEM_1);
   RegisterHotKey(Handle, 2, MOD_CONTROL or MOD_ALT, VK_OEM_1);
-
   WTSRegisterSessionNotification(Handle, NOTIFY_FOR_THIS_SESSION);
   {$ENDIF}
-
   if not Application.ShowMainForm then
     DumpMemory;
 end;
@@ -331,12 +314,10 @@ begin
     MessageDlg('Selection Error', 'Please select at least one collection to delete.', mtWarning, [mbOK], 0);
     Exit;
   end;
-
   if Count = 1 then
     Msg := 'Are you sure you wish to delete this collection and all its triggers?'
   else
     Msg := Format('Are you sure you wish to delete these %d collections and all their triggers?', [Count]);
-
   if MessageDlg('Delete Collection', Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     FServiceDB.DB.Exec('BEGIN TRANSACTION;');
@@ -354,10 +335,8 @@ begin
       FServiceDB.DB.Exec('ROLLBACK;');
       raise;
     end;
-
     LoadCollections;
     SelectCollectionByID(COLLECTION_ALL_ID);
-
     GlobalEngine.Stop;
     FResolver.RebuildIndex;
     GlobalEngine.BufferReset;
@@ -380,15 +359,12 @@ var
   SQL: String;
 begin
   if vstCollection.SelectedCount = 0 then Exit;
-
   dlgExport.Title := 'Export Collections';
   dlgExport.FileName := 'Pasted_Collection_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
-
   if dlgExport.Execute then
   begin
     HasAllNode := False;
     IdList := '';
-
     Node := vstCollection.GetFirstSelected;
     while Assigned(Node) do
     begin
@@ -398,12 +374,10 @@ begin
       IdList := IdList + QuotedStr(Data^.ID);
       Node := vstCollection.GetNextSelected(Node);
     end;
-
     if HasAllNode then
       SQL := 'SELECT d.name, d.trigger_word, d.definition_text, c.name FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id'
     else
       SQL := 'SELECT d.name, d.trigger_word, d.definition_text, c.name FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id WHERE d.collection_id IN (' + IdList + ')';
-
     JSONArr := TJSONArray.Create;
     try
       Res := FServiceDB.DB.Query(SQL);
@@ -416,9 +390,7 @@ begin
         JSONObj.Add('collection', Res[i][3]);
         JSONArr.Add(JSONObj);
       end;
-
       JSONStr := JSONArr.FormatJSON();
-
       try
         FileStream := TFileStream.Create(dlgExport.FileName, fmCreate or fmShareExclusive);
         try
@@ -433,7 +405,6 @@ begin
         on E: Exception do
           MessageDlg('Export Error', 'An unexpected error occurred during export: ' + E.Message, mtError, [mbOK], 0);
       end;
-
     finally
       JSONArr.Free;
     end;
@@ -448,18 +419,13 @@ var
   TargetID: String;
 begin
   if vstCollection.SelectedCount <> 1 then Exit;
-
   Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
   if Data^.ID = COLLECTION_ALL_ID then Exit;
-
   TargetID := Data^.ID;
-
   if TfrmDialogInput.Execute('Rename Collection', 'Enter new name', Data^.Name, NewName) then
   begin
     if SameText(Data^.Name, NewName) then Exit;
-
     Res := FServiceDB.DB.Query('SELECT id FROM collections WHERE name = ' + QuotedStr(NewName) + ' COLLATE NOCASE');
-
     if Length(Res) = 0 then
     begin
       FServiceDB.DB.Exec('UPDATE collections SET name = ' + QuotedStr(NewName) + ' WHERE id = ' + QuotedStr(TargetID));
@@ -507,16 +473,13 @@ var
 begin
   dlgBackup.Title := 'Back Up Database';
   dlgBackup.FileName := 'Pasted_Backup_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.db';
-
   if dlgBackup.Execute then
   begin
     try
       TestStream := TFileStream.Create(dlgBackup.FileName, fmCreate or fmShareExclusive);
       TestStream.Free;
       SysUtils.DeleteFile(dlgBackup.FileName);
-
       FServiceDB.DB.Exec('VACUUM INTO ' + QuotedStr(dlgBackup.FileName) + ';');
-
       if FileExists(dlgBackup.FileName) then
         MessageDlg('Backup Successful', 'Data has been successfully backed up.', mtInformation, [mbOK], 0)
       else
@@ -540,18 +503,15 @@ var
 begin
   if MessageDlg('Confirm Restore', 'Restoring will overwrite the current data. Do you wish to proceed?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
     Exit;
-
   dlgRestore.Title := 'Restore Database';
   if dlgRestore.Execute then
   begin
     DBPath := IncludeTrailingPathDelimiter(GetAppConfigDir(False)) + 'Pasted.db';
-
     if SameText(dlgRestore.FileName, DBPath) then
     begin
       MessageDlg('Restore Error', 'You cannot restore using the currently active database file.', mtError, [mbOK], 0);
       Exit;
     end;
-
     try
       TempDB := TStaticSQLite.Create(dlgRestore.FileName);
       try
@@ -568,17 +528,12 @@ begin
       MessageDlg('Restore Error', 'Could not open the selected file. It may be corrupted or inaccessible.', mtError, [mbOK], 0);
       Exit;
     end;
-
     GlobalEngine.Stop;
-
     if Assigned(FResolver) then FreeAndNil(FResolver);
     if Assigned(FServiceDB) then FreeAndNil(FServiceDB);
-
     BackupPath := DBPath + '.bak_' + FormatDateTime('yyyymmdd_hhnnss', Now);
-
     if FileExists(DBPath) then
       RenameFile(DBPath, BackupPath);
-
     try
       InStream := TFileStream.Create(dlgRestore.FileName, fmOpenRead or fmShareDenyWrite);
       try
@@ -600,17 +555,13 @@ begin
         MessageDlg('Restore Error', 'Failed to restore the database file: ' + E.Message, mtError, [mbOK], 0);
       end;
     end;
-
     FServiceDB := TServiceDatabase.Create;
     FResolver := TServiceResolve.Create(FServiceDB.DB);
     GlobalEngine.OnKeyLog := @FResolver.OnKeyLogResolve;
     GlobalEngine.OnTrigger := @FResolver.OnSnippetTriggered;
-
     FResolver.RebuildIndex;
-
     LoadCollections;
     RefreshTriggerList;
-
     GlobalEngine.Start;
     DumpMemory;
   end;
@@ -728,19 +679,16 @@ var
   {$ENDIF}
 begin
   if not GlobalEngine.Active then Exit;
-
   if (Msg.wParam = 1) or (Msg.wParam = 2) then
   begin
     try
       {$IFDEF WINDOWS}
       TargetWnd := GetForegroundWindow();
       {$ENDIF}
-
       if Assigned(FServiceDB) then
         SelectedID := TfrmDialogSearchQuick.Execute(FServiceDB.DB)
       else
         SelectedID := '';
-
       if SelectedID <> '' then
       begin
         {$IFDEF WINDOWS}
@@ -748,14 +696,12 @@ begin
         begin
           SetForegroundWindow(TargetWnd);
           TargetThreadID := GetWindowThreadProcessId(TargetWnd, @TargetProcessID);
-
           TargetProcessHandle := OpenProcess(PROCESS_QUERY_INFORMATION, False, TargetProcessID);
           if TargetProcessHandle <> 0 then
           begin
             WaitForInputIdle(TargetProcessHandle, 1000);
             CloseHandle(TargetProcessHandle);
           end;
-
           GUIInfo.cbSize := SizeOf(TGUITHREADINFO);
           WaitCount := 0;
           while WaitCount < 250 do
@@ -854,7 +800,6 @@ begin
   Data^.Name := Row[1];
   Data^.Trigger := Row[2];
   Data^.CollectionName := Row[3];
-  
   if (Row[4] <> '') and TryStrToDateTime(Row[4], DT, FFS) then
     Data^.LastUsed := FormatDateTime('yyyy-mm-dd hh:nn:ss', UniversalTimeToLocal(DT))
   else
@@ -887,7 +832,6 @@ begin
     CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
     SelectedCollID := CollData^.ID;
   end;
-
   if Trim(edtSearch.Text) <> '' then
   begin
     SVal := QuotedStr('%' + Trim(edtSearch.Text) + '%');
@@ -895,23 +839,17 @@ begin
   end
   else
     SearchFilter := '';
-
   case vstTrigger.Header.SortColumn of
     1: SortField := 'd.trigger_word';
     2: SortField := 'c.name';
     3: SortField := 'd.last_triggered';
     else SortField := 'd.name';
   end;
-
   if vstTrigger.Header.SortDirection = sdAscending then SortOrder := ' ASC' else SortOrder := ' DESC';
-
   SQL := 'SELECT d.id, d.name, d.trigger_word, c.name, d.last_triggered FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id WHERE 1=1' + SearchFilter;
-
   if SelectedCollID <> COLLECTION_ALL_ID then
     SQL := SQL + ' AND d.collection_id = ' + QuotedStr(SelectedCollID);
-
   SQL := SQL + ' ORDER BY ' + SortField + SortOrder;
-
   vstTrigger.BeginUpdate;
   try
     vstTrigger.Clear;
@@ -919,7 +857,6 @@ begin
   finally
     vstTrigger.EndUpdate;
   end;
-
   IdleTimer.Enabled := False;
   IdleTimer.Enabled := True;
 end;
@@ -954,14 +891,12 @@ begin
     MessageDlg('Selection Error', 'Please select at least one trigger to move.', mtWarning, [mbOK], 0);
     Exit;
   end;
-
   CurrentCollID := COLLECTION_ALL_ID;
   if vstCollection.GetFirstSelected <> nil then
   begin
     CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
     CurrentCollID := CollData^.ID;
   end;
-
   if TfrmDialogMove.Execute(FServiceDB.DB, TargetCollID) then
   begin
     UpdatesPending := False;
@@ -980,14 +915,12 @@ begin
       FServiceDB.DB.Exec('ROLLBACK;');
       raise;
     end;
-
     if UpdatesPending then
     begin
       if CurrentCollID = COLLECTION_ALL_ID then
         FinalRouteID := COLLECTION_ALL_ID
       else
         FinalRouteID := TargetCollID;
-
       LoadCollections;
       SelectCollectionByID(FinalRouteID);
     end;
@@ -1050,7 +983,6 @@ var
 begin
   dlgExport.Title := 'Export Triggers';
   dlgExport.FileName := 'Pasted_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
-
   if dlgExport.Execute then
   begin
     JSONArr := TJSONArray.Create;
@@ -1065,9 +997,7 @@ begin
         JSONObj.Add('collection', Res[i][3]);
         JSONArr.Add(JSONObj);
       end;
-
       JSONStr := JSONArr.FormatJSON();
-      
       try
         FileStream := TFileStream.Create(dlgExport.FileName, fmCreate or fmShareExclusive);
         try
@@ -1082,7 +1012,6 @@ begin
         on E: Exception do
           MessageDlg('Export Error', 'An unexpected error occurred during export: ' + E.Message, mtError, [mbOK], 0);
       end;
-
     finally
       JSONArr.Free;
     end;
@@ -1116,32 +1045,26 @@ begin
       CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
       CurrentCollID := CollData^.ID;
     end;
-
     SuccessCount := 0;
     SkipCount := 0;
     BatchCount := 0;
     BatchSQL := '';
     JSONData := nil;
-
     try
       FileStream := TFileStream.Create(dlgImport.FileName, fmOpenRead or fmShareDenyWrite);
     except
       MessageDlg('Import Error', 'Could not open the selected file.', mtError, [mbOK], 0);
       Exit;
     end;
-
     CollCache := specialize TDictionary<String, String>.Create;
     TrigCache := specialize TDictionary<String, Boolean>.Create;
-
     try
       Res := FServiceDB.DB.Query('SELECT name, id FROM collections');
       for i := 0 to High(Res) do
         CollCache.AddOrSetValue(LowerCase(Res[i][0]), Res[i][1]);
-
       Res := FServiceDB.DB.Query('SELECT trigger_word FROM definitions');
       for i := 0 to High(Res) do
         TrigCache.AddOrSetValue(LowerCase(Res[i][0]), True);
-
       Parser := TJSONParser.Create(FileStream, []);
       try
         try
@@ -1150,7 +1073,6 @@ begin
           MessageDlg('Import Error', 'The selected file is corrupted or not a valid JSON document.', mtError, [mbOK], 0);
           Exit;
         end;
-
         if Assigned(JSONData) and (JSONData is TJSONArray) then
         begin
           JSONArr := TJSONArray(JSONData);
@@ -1165,28 +1087,23 @@ begin
                 TTrigger := JSONObj.Get('trigger', '');
                 TDef := JSONObj.Get('definition', '');
                 TCollName := JSONObj.Get('collection', 'Default');
-
                 if Trim(TCollName) = '' then TCollName := 'Default';
                 if Trim(TTrigger) = '' then Continue;
-
                 if TrigCache.ContainsKey(LowerCase(TTrigger)) then
                 begin
                   Inc(SkipCount);
                   Continue;
                 end;
-
                 if not CollCache.TryGetValue(LowerCase(TCollName), TargetCollID) then
                 begin
                   TargetCollID := NewMonoLexID;
                   FServiceDB.DB.Exec('INSERT INTO collections (id, name) VALUES (' + QuotedStr(TargetCollID) + ',' + QuotedStr(TCollName) + ')');
                   CollCache.AddOrSetValue(LowerCase(TCollName), TargetCollID);
                 end;
-
                 BatchSQL := BatchSQL + '(' + QuotedStr(NewMonoLexID) + ',' + QuotedStr(TargetCollID) + ',' + QuotedStr(TName) + ',' + QuotedStr(TTrigger) + ',' + QuotedStr(TDef) + '),';
                 Inc(BatchCount);
                 Inc(SuccessCount);
                 TrigCache.AddOrSetValue(LowerCase(TTrigger), True);
-
                 if BatchCount >= 500 then
                 begin
                   SetLength(BatchSQL, Length(BatchSQL) - 1);
@@ -1196,13 +1113,11 @@ begin
                 end;
               end;
             end;
-
             if BatchCount > 0 then
             begin
               SetLength(BatchSQL, Length(BatchSQL) - 1);
               FServiceDB.DB.Exec('INSERT INTO definitions (id, collection_id, name, trigger_word, definition_text) VALUES ' + BatchSQL);
             end;
-
             FServiceDB.DB.Exec('COMMIT;');
           except
             FServiceDB.DB.Exec('ROLLBACK;');
@@ -1214,7 +1129,6 @@ begin
           MessageDlg('Import Error', 'The file does not contain a valid array of triggers.', mtError, [mbOK], 0);
           Exit;
         end;
-
       finally
         if Assigned(JSONData) then JSONData.Free;
         Parser.Free;
@@ -1224,20 +1138,16 @@ begin
       TrigCache.Free;
       FileStream.Free;
     end;
-
     LoadCollections;
     SelectCollectionByID(CurrentCollID);
-
     GlobalEngine.Stop;
     FResolver.RebuildIndex;
     GlobalEngine.BufferReset;
     GlobalEngine.Start;
-
     if SkipCount > 0 then
       ImportMsg := Format('Successfully imported %d triggers.' + sLineBreak + 'Skipped %d triggers to prevent duplicates.', [SuccessCount, SkipCount])
     else
       ImportMsg := Format('Successfully imported %d triggers.', [SuccessCount]);
-
     MessageDlg('Import Successful', ImportMsg, mtInformation, [mbOK], 0);
     DumpMemory;
   end;
@@ -1253,18 +1163,15 @@ begin
   HasAllNode := False;
   SelCount := vstCollection.SelectedCount;
   Node := vstCollection.GetFirstSelected;
-
   while Assigned(Node) do
   begin
     Data := vstCollection.GetNodeData(Node);
     if Data^.ID = COLLECTION_ALL_ID then HasAllNode := True;
     Node := vstCollection.GetNextSelected(Node);
   end;
-
   mniTreeCollectionRename.Enabled := (SelCount = 1) and not HasAllNode;
   mniTreeCollectionDelete.Enabled := (SelCount > 0) and not HasAllNode;
   mniTreeCollectionExport.Enabled := (SelCount > 0);
-
   if SelCount > 1 then
   begin
     mniTreeCollectionDelete.Caption := 'Delete Collections';
@@ -1295,7 +1202,6 @@ var
   SelCount: Integer;
 begin
   SelCount := vstTrigger.SelectedCount;
-
   if SelCount = 0 then
   begin
     mniTreeTriggerEdit.Enabled := False;
@@ -1338,17 +1244,14 @@ begin
   vstCollection.BeginUpdate;
   try
     vstCollection.Clear;
-    
     TotalCount := 0;
     Res := FServiceDB.DB.Query('SELECT COUNT(*) FROM definitions');
     if Length(Res) > 0 then TotalCount := StrToIntDef(Res[0][0], 0);
-
     Node := vstCollection.AddChild(nil);
     Data := vstCollection.GetNodeData(Node);
     Data^.ID := COLLECTION_ALL_ID;
     Data^.Name := 'All';
     Data^.Count := TotalCount;
-    
     FServiceDB.DB.QueryProc('SELECT id, name, (SELECT COUNT(*) FROM definitions d WHERE d.collection_id = c.id) FROM collections c', @ProcessCollectionRow);
   finally
     vstCollection.EndUpdate;
@@ -1399,11 +1302,9 @@ var
 begin
   Data1 := Sender.GetNodeData(Node1);
   Data2 := Sender.GetNodeData(Node2);
-  
   if TLazVirtualStringTree(Sender).Header.SortDirection = sdAscending then DirectionMod := 1 else DirectionMod := -1;
   if Data1^.ID = COLLECTION_ALL_ID then begin Result := -1 * DirectionMod; Exit; end;
   if Data2^.ID = COLLECTION_ALL_ID then begin Result := 1 * DirectionMod; Exit; end;
-
   case Column of
     0: Result := CompareText(Data1^.Name, Data2^.Name);
     1: 
@@ -1461,7 +1362,6 @@ var Data1, Data2: PTriggerData;
 begin
   Data1 := Sender.GetNodeData(Node1);
   Data2 := Sender.GetNodeData(Node2);
-  
   case Column of
     0: Result := CompareText(Data1^.Name, Data2^.Name);
     1: Result := CompareText(Data1^.Trigger, Data2^.Trigger);
@@ -1470,8 +1370,15 @@ begin
   end;
 end;
 
-procedure TfrmAppBase.edtSearchEnter(Sender: TObject); begin GlobalEngine.Stop; end;
-procedure TfrmAppBase.edtSearchExit(Sender: TObject); begin GlobalEngine.Start; end;
+procedure TfrmAppBase.edtSearchEnter(Sender: TObject);
+begin
+  GlobalEngine.Stop;
+end;
+
+procedure TfrmAppBase.edtSearchExit(Sender: TObject);
+begin
+  GlobalEngine.Start;
+end;
 
 procedure TfrmAppBase.edtSearchChange(Sender: TObject);
 begin
@@ -1489,7 +1396,6 @@ begin
     memPreview.Text := 'Multiple triggers selected.';
     Exit;
   end;
-
   if vstTrigger.GetFirstSelected <> nil then
   begin
     Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
@@ -1535,26 +1441,20 @@ begin
     Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
     CurrentCollID := Data^.ID;
   end;
-
   N := ''; T := ''; D := ''; C := '';
-
   if CurrentCollID <> COLLECTION_ALL_ID then
     C := CurrentCollID;
-
   if TfrmDialogDefinition.Execute(FServiceDB.DB, 'New Trigger', '', N, T, D, C) then
   begin
     NewID := NewMonoLexID;
     FServiceDB.DB.Exec('INSERT INTO definitions (id, collection_id, name, trigger_word, definition_text) VALUES (' + QuotedStr(NewID) + ',' + QuotedStr(C) + ',' + QuotedStr(N) + ',' + QuotedStr(T) + ',' + QuotedStr(D) + ')');
-
     if CurrentCollID = COLLECTION_ALL_ID then
       TargetCollID := COLLECTION_ALL_ID
     else
       TargetCollID := C;
-
     LoadCollections;
     SelectCollectionByID(TargetCollID);
     SelectTriggerByID(NewID);
-
     GlobalEngine.Stop;
     FResolver.RebuildIndex;
     GlobalEngine.BufferReset;
@@ -1575,38 +1475,30 @@ begin
     MessageDlg('Selection Error', 'Please select a trigger to edit.', mtWarning, [mbOK], 0);
     Exit;
   end;
-
   CurrentCollID := COLLECTION_ALL_ID;
   if vstCollection.GetFirstSelected <> nil then
   begin
     CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
     CurrentCollID := CollData^.ID;
   end;
-
   Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
   ID := Data^.ID;
-
   Res := FServiceDB.DB.Query('SELECT name, trigger_word, definition_text, collection_id FROM definitions WHERE id = ' + QuotedStr(ID));
   if Length(Res) = 0 then Exit;
-
   N := Res[0][0];
   T := Res[0][1];
   D := Res[0][2];
   C := Res[0][3];
-
   if TfrmDialogDefinition.Execute(FServiceDB.DB, 'Edit Trigger', ID, N, T, D, C) then
   begin
     FServiceDB.DB.Exec('UPDATE definitions SET collection_id=' + QuotedStr(C) + ', name=' + QuotedStr(N) + ', trigger_word=' + QuotedStr(T) + ', definition_text=' + QuotedStr(D) + ' WHERE id=' + QuotedStr(ID));
-
     if CurrentCollID = COLLECTION_ALL_ID then
       TargetCollID := COLLECTION_ALL_ID
     else
       TargetCollID := C;
-
     LoadCollections;
     SelectCollectionByID(TargetCollID);
     SelectTriggerByID(ID);
-
     GlobalEngine.Stop;
     FResolver.RebuildIndex;
     GlobalEngine.BufferReset;
@@ -1624,25 +1516,21 @@ var
   CollData: PCollectionData;
 begin
   Count := vstTrigger.SelectedCount;
-  
   if Count = 0 then
   begin
     MessageDlg('Selection Error', 'Please select at least one trigger to delete.', mtWarning, [mbOK], 0);
     Exit;
   end;
-
   CurrentCollID := COLLECTION_ALL_ID;
   if vstCollection.GetFirstSelected <> nil then
   begin
     CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
     CurrentCollID := CollData^.ID;
   end;
-
   if Count = 1 then
     Msg := 'Are you sure you wish to delete this trigger?'
   else
     Msg := Format('Are you sure you wish to delete the %d selected triggers?', [Count]);
-
   if MessageDlg('Delete Trigger', Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     FServiceDB.DB.Exec('BEGIN TRANSACTION;');
@@ -1659,10 +1547,8 @@ begin
       FServiceDB.DB.Exec('ROLLBACK;');
       raise;
     end;
-
     LoadCollections;
     SelectCollectionByID(CurrentCollID);
-
     GlobalEngine.Stop;
     FResolver.RebuildIndex;
     GlobalEngine.BufferReset;

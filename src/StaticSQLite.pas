@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -57,22 +54,22 @@ type
   public
     constructor Create(const DBPath: String);
     destructor Destroy; override;
-    procedure Exec(const SQL: String);
-    function Query(const SQL: String): TDBResult;
-    procedure QueryProc(const SQL: String; Callback: TRowCallback);
     function GetLastInsertID: Int64;
+    function Query(const SQL: String): TDBResult;
+    procedure Exec(const SQL: String);
+    procedure QueryProc(const SQL: String; Callback: TRowCallback);
   end;
 
-function sqlite3_initialize(): Integer; cdecl; external name 'sqlite3_initialize';
-function sqlite3_open(filename: PAnsiChar; out ppDb: Pointer): Integer; cdecl; external name 'sqlite3_open';
 function sqlite3_close(db: Pointer): Integer; cdecl; external name 'sqlite3_close';
-function sqlite3_exec(db: Pointer; sql: PAnsiChar; callback: Pointer; arg: Pointer; out errmsg: PAnsiChar): Integer; cdecl; external name 'sqlite3_exec';
-function sqlite3_prepare_v2(db: Pointer; zSql: PAnsiChar; nByte: Integer; out ppStmt: Pointer; pzTail: Pointer): Integer; cdecl; external name 'sqlite3_prepare_v2';
-function sqlite3_step(pStmt: Pointer): Integer; cdecl; external name 'sqlite3_step';
 function sqlite3_column_count(pStmt: Pointer): Integer; cdecl; external name 'sqlite3_column_count';
 function sqlite3_column_text(pStmt: Pointer; iCol: Integer): PAnsiChar; cdecl; external name 'sqlite3_column_text';
+function sqlite3_exec(db: Pointer; sql: PAnsiChar; callback: Pointer; arg: Pointer; out errmsg: PAnsiChar): Integer; cdecl; external name 'sqlite3_exec';
 function sqlite3_finalize(pStmt: Pointer): Integer; cdecl; external name 'sqlite3_finalize';
+function sqlite3_initialize(): Integer; cdecl; external name 'sqlite3_initialize';
 function sqlite3_last_insert_rowid(db: Pointer): Int64; cdecl; external name 'sqlite3_last_insert_rowid';
+function sqlite3_open(filename: PAnsiChar; out ppDb: Pointer): Integer; cdecl; external name 'sqlite3_open';
+function sqlite3_prepare_v2(db: Pointer; zSql: PAnsiChar; nByte: Integer; out ppStmt: Pointer; pzTail: Pointer): Integer; cdecl; external name 'sqlite3_prepare_v2';
+function sqlite3_step(pStmt: Pointer): Integer; cdecl; external name 'sqlite3_step';
 
 implementation
 
@@ -95,7 +92,6 @@ begin
   sqlite3_initialize(); 
   if sqlite3_open(PAnsiChar(DBPath), FHandle) <> SQLITE_OK then
     raise Exception.Create('Database access failed.');
-
   Exec('PRAGMA journal_mode=WAL;');
   Exec('PRAGMA synchronous=NORMAL;');
   Exec('PRAGMA busy_timeout=5000;');
