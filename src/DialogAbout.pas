@@ -35,8 +35,7 @@ interface
 
 uses
   Buttons, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics,
-  LCLIntf, LCLType, Menus, StdCtrls, SysUtils, AppFont, AppIdentity
-  {$IFDEF WINDOWS}, Windows{$ENDIF};
+  LCLType, Menus, StdCtrls, SysUtils;
 
 type
   { TfrmDialogAbout }
@@ -83,6 +82,9 @@ type
   end;
 
 implementation
+
+uses
+  LCLIntf, AppFont, AppIdentity {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$R *.lfm}
 
