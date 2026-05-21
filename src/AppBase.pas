@@ -35,10 +35,8 @@ interface
 
 uses
   Buttons, Classes, Clipbrd, ComCtrls, Controls, DateUtils, Dialogs, ExtCtrls,
-  Forms, Graphics, LCLIntf, Menus, StdCtrls, SysUtils, laz.VirtualTrees, AppFont,
-  AppIdentity, DialogAbout, DialogDefinition, DialogInput, DialogMove,
-  DialogSearchQuick, MonoLexID, ServiceDatabase, ServiceHook, ServiceResolve,
-  ServiceSettings, StaticSQLite
+  Forms, Graphics, Menus, StdCtrls, SysUtils, laz.VirtualTrees, AppIdentity,
+  ServiceDatabase, ServiceHook, ServiceResolve, StaticSQLite
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$IFDEF WINDOWS}
@@ -219,7 +217,9 @@ var
 implementation
 
 uses
-  fpjson, jsonparser, Generics.Collections;
+  fpjson, Generics.Collections, jsonparser, LCLIntf, AppFont, DialogAbout,
+  DialogDefinition, DialogInput, DialogMove, DialogSearchQuick, MonoLexID,
+  ServiceSettings;
 
 {$R *.lfm}
 
