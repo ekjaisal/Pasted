@@ -17,7 +17,7 @@ object frmDialogSearchQuick: TfrmDialogSearchQuick
   KeyPreview = True
   Position = poScreenCenter
   ShowInTaskBar = stNever
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   OnDestroy = FormDestroy

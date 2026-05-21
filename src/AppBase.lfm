@@ -14,7 +14,7 @@ object frmAppBase: TfrmAppBase
   Font.Quality = fqDraft
   Menu = mnuAppBase
   Position = poScreenCenter
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate

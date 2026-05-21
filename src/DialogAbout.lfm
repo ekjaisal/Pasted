@@ -1,20 +1,20 @@
 object frmDialogAbout: TfrmDialogAbout
   Left = 500
-  Height = 750
+  Height = 720
   Top = 250
-  Width = 950
+  Width = 1080
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'About Pasted'
-  ClientHeight = 750
-  ClientWidth = 950
+  ClientHeight = 720
+  ClientWidth = 1080
   DesignTimePPI = 144
   Font.CharSet = ANSI_CHARSET
   Font.Name = 'Arial'
   Font.Pitch = fpVariable
   Font.Quality = fqDraft
   Position = poMainFormCenter
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   OnCreate = FormCreate
   object pcAbout: TPageControl
     AnchorSideLeft.Control = Owner
@@ -23,9 +23,9 @@ object frmDialogAbout: TfrmDialogAbout
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = btnClose
     Left = 20
-    Height = 655
+    Height = 625
     Top = 20
-    Width = 910
+    Width = 1040
     TabStop = False
     ActivePage = tsInfo
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -34,41 +34,43 @@ object frmDialogAbout: TfrmDialogAbout
     TabOrder = 0
     object tsInfo: TTabSheet
       Caption = 'About'
-      ClientHeight = 621
-      ClientWidth = 902
+      ClientHeight = 591
+      ClientWidth = 1032
       Font.CharSet = ANSI_CHARSET
       Font.Height = -18
       Font.Name = 'Arial'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
       ParentFont = False
-      object pnlInfoBg: TPanel
+      object pnlInfoBackground: TPanel
         Left = 0
-        Height = 621
+        Height = 591
         Top = 0
-        Width = 902
+        Width = 1032
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 621
-        ClientWidth = 902
+        ClientHeight = 591
+        ClientWidth = 1032
         Color = clWindow
         ParentBackground = False
         ParentColor = False
         TabOrder = 0
         object pnlIdentity: TPanel
-          AnchorSideLeft.Control = pnlInfoBg
+          AnchorSideLeft.Control = pnlInfoBackground
           AnchorSideLeft.Side = asrCenter
-          AnchorSideTop.Control = pnlInfoBg
-          Left = 247
-          Height = 118
-          Top = 100
-          Width = 409
+          AnchorSideTop.Control = pnlInfoBackground
+          Left = 308
+          Height = 144
+          Top = 80
+          Width = 417
           AutoSize = True
+          BorderSpacing.Left = 20
           BorderSpacing.Top = 80
-          BorderSpacing.Around = 20
+          BorderSpacing.Right = 20
+          BorderSpacing.Bottom = 20
           BevelOuter = bvNone
-          ClientHeight = 118
-          ClientWidth = 409
+          ClientHeight = 144
+          ClientWidth = 417
           Color = clWindow
           ParentBackground = False
           ParentColor = False
@@ -79,9 +81,9 @@ object frmDialogAbout: TfrmDialogAbout
             AnchorSideTop.Side = asrCenter
             AnchorSideBottom.Side = asrBottom
             Left = 0
-            Height = 117
-            Top = 1
-            Width = 130
+            Height = 144
+            Top = 0
+            Width = 170
             BorderSpacing.Right = 20
             OnPaint = imgLogoPaint
           end
@@ -91,15 +93,15 @@ object frmDialogAbout: TfrmDialogAbout
             AnchorSideTop.Control = pnlIdentity
             AnchorSideTop.Side = asrCenter
             AnchorSideBottom.Side = asrCenter
-            Left = 150
-            Height = 117
+            Left = 190
+            Height = 142
             Top = 1
-            Width = 259
+            Width = 227
             AutoSize = True
             BorderSpacing.Left = 20
             BevelOuter = bvNone
-            ClientHeight = 117
-            ClientWidth = 259
+            ClientHeight = 142
+            ClientWidth = 227
             Color = clWindow
             ParentBackground = False
             ParentColor = False
@@ -110,8 +112,8 @@ object frmDialogAbout: TfrmDialogAbout
               Left = 0
               Height = 65
               Top = 0
-              Width = 259
-              Caption = 'AppName'
+              Width = 183
+              Caption = 'Pasted'
               Font.CharSet = ANSI_CHARSET
               Font.Height = -56
               Font.Name = 'Arial'
@@ -128,8 +130,10 @@ object frmDialogAbout: TfrmDialogAbout
               AnchorSideBottom.Side = asrCenter
               Left = 0
               Height = 21
-              Top = 65
+              Top = 70
               Width = 59
+              BorderSpacing.Top = 5
+              BorderSpacing.Bottom = 20
               Caption = 'Version'
               Font.CharSet = ANSI_CHARSET
               Font.Color = clGray
@@ -145,9 +149,10 @@ object frmDialogAbout: TfrmDialogAbout
               AnchorSideTop.Side = asrBottom
               Left = 0
               Height = 21
-              Top = 96
+              Top = 111
               Width = 227
-              BorderSpacing.Top = 10
+              BorderSpacing.Top = 20
+              BorderSpacing.Bottom = 10
               Caption = 'Pass Trigger; Emit Definition'
               Font.CharSet = ANSI_CHARSET
               Font.Name = 'Arial'
@@ -159,15 +164,16 @@ object frmDialogAbout: TfrmDialogAbout
           end
         end
         object btnWebsite: TSpeedButton
-          AnchorSideLeft.Control = pnlInfoBg
+          AnchorSideLeft.Control = pnlInfoBackground
           AnchorSideLeft.Side = asrCenter
           AnchorSideBottom.Control = btnRepository
           Cursor = crHandPoint
-          Left = 251
-          Height = 35
-          Top = 426
-          Width = 400
+          Left = 411
+          Height = 31
+          Top = 408
+          Width = 211
           Anchors = [akLeft, akBottom]
+          AutoSize = True
           BorderSpacing.Left = 20
           BorderSpacing.Top = 5
           BorderSpacing.Right = 20
@@ -181,15 +187,16 @@ object frmDialogAbout: TfrmDialogAbout
           OnClick = LinkClick
         end
         object btnRepository: TSpeedButton
-          AnchorSideLeft.Control = pnlInfoBg
+          AnchorSideLeft.Control = pnlInfoBackground
           AnchorSideLeft.Side = asrCenter
           AnchorSideBottom.Control = btnSponsor
           Cursor = crHandPoint
-          Left = 251
-          Height = 35
-          Top = 466
-          Width = 400
+          Left = 364
+          Height = 31
+          Top = 444
+          Width = 305
           Anchors = [akLeft, akBottom]
+          AutoSize = True
           BorderSpacing.Left = 20
           BorderSpacing.Top = 5
           BorderSpacing.Right = 20
@@ -203,16 +210,17 @@ object frmDialogAbout: TfrmDialogAbout
           OnClick = LinkClick
         end
         object btnSponsor: TSpeedButton
-          AnchorSideLeft.Control = pnlInfoBg
+          AnchorSideLeft.Control = pnlInfoBackground
           AnchorSideLeft.Side = asrCenter
-          AnchorSideBottom.Control = pnlInfoBg
+          AnchorSideBottom.Control = pnlInfoBackground
           AnchorSideBottom.Side = asrBottom
           Cursor = crHandPoint
-          Left = 251
-          Height = 35
-          Top = 506
-          Width = 400
+          Left = 406
+          Height = 31
+          Top = 480
+          Width = 220
           Anchors = [akLeft, akBottom]
+          AutoSize = True
           BorderSpacing.Left = 20
           BorderSpacing.Top = 5
           BorderSpacing.Right = 20
@@ -226,15 +234,16 @@ object frmDialogAbout: TfrmDialogAbout
           OnClick = LinkClick
         end
         object btnCopyright: TSpeedButton
-          AnchorSideLeft.Control = pnlInfoBg
+          AnchorSideLeft.Control = pnlInfoBackground
           AnchorSideLeft.Side = asrCenter
           AnchorSideBottom.Control = btnWebsite
           Cursor = crHandPoint
-          Left = 251
-          Height = 35
-          Top = 386
-          Width = 400
+          Left = 452
+          Height = 31
+          Top = 372
+          Width = 128
           Anchors = [akLeft, akBottom]
+          AutoSize = True
           BorderSpacing.Left = 20
           BorderSpacing.Top = 20
           BorderSpacing.Right = 20
@@ -251,42 +260,41 @@ object frmDialogAbout: TfrmDialogAbout
     end
     object tsUserGuide: TTabSheet
       Caption = 'User Guide'
-      ClientHeight = 621
-      ClientWidth = 902
-      object pnlGuideBg: TPanel
+      ClientHeight = 591
+      ClientWidth = 1032
+      object pnlGuideBackground: TPanel
         Left = 0
-        Height = 621
+        Height = 591
         Top = 0
-        Width = 902
+        Width = 1032
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 621
-        ClientWidth = 902
+        ClientHeight = 591
+        ClientWidth = 1032
         Color = clWindow
         ParentBackground = False
         ParentColor = False
         TabOrder = 0
         object memUserGuide: TMemo
-          AnchorSideLeft.Control = pnlGuideBg
-          AnchorSideTop.Control = pnlGuideBg
-          AnchorSideRight.Control = pnlGuideBg
+          AnchorSideLeft.Control = pnlGuideBackground
+          AnchorSideTop.Control = pnlGuideBackground
+          AnchorSideRight.Control = pnlGuideBackground
           AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = pnlGuideBg
+          AnchorSideBottom.Control = pnlGuideBackground
           AnchorSideBottom.Side = asrBottom
           Left = 20
-          Height = 581
+          Height = 551
           Top = 20
-          Width = 862
+          Width = 992
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Around = 20
           BorderStyle = bsNone
           Color = clWindow
           Font.CharSet = ANSI_CHARSET
-          Font.Height = -16
+          Font.Height = -18
           Font.Name = 'Consolas'
           Font.Pitch = fpFixed
           Font.Quality = fqDraft
-          Font.Style = [fsBold]
           ParentFont = False
           PopupMenu = pmnDialogAboutMemo
           ReadOnly = True
@@ -299,45 +307,45 @@ object frmDialogAbout: TfrmDialogAbout
     end
     object tsLicense: TTabSheet
       Caption = 'License'
-      ClientHeight = 621
-      ClientWidth = 902
-      object pnlLicenseBg: TPanel
+      ClientHeight = 591
+      ClientWidth = 1032
+      object pnlLicenseBackground: TPanel
         Left = 0
-        Height = 621
+        Height = 591
         Top = 0
-        Width = 902
+        Width = 1032
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 621
-        ClientWidth = 902
+        ClientHeight = 591
+        ClientWidth = 1032
         Color = clWindow
         ParentBackground = False
         ParentColor = False
         TabOrder = 0
         object memLicense: TMemo
-          AnchorSideLeft.Control = pnlLicenseBg
-          AnchorSideTop.Control = pnlLicenseBg
-          AnchorSideRight.Control = pnlLicenseBg
+          AnchorSideLeft.Control = pnlLicenseBackground
+          AnchorSideTop.Control = pnlLicenseBackground
+          AnchorSideRight.Control = pnlLicenseBackground
           AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = pnlLicenseBg
+          AnchorSideBottom.Control = pnlLicenseBackground
           AnchorSideBottom.Side = asrBottom
           Left = 20
-          Height = 581
+          Height = 551
           Top = 20
-          Width = 862
+          Width = 992
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Around = 20
           BorderStyle = bsNone
           Color = clWindow
           Font.CharSet = ANSI_CHARSET
-          Font.Height = -16
+          Font.Height = -18
           Font.Name = 'Consolas'
           Font.Pitch = fpFixed
           Font.Quality = fqDraft
-          Font.Style = [fsBold]
           ParentFont = False
           PopupMenu = pmnDialogAboutMemo
           ReadOnly = True
+          ScrollBars = ssAutoVertical
           TabOrder = 0
           WordWrap = False
           OnClick = memCaretHide
@@ -347,42 +355,41 @@ object frmDialogAbout: TfrmDialogAbout
     end
     object tsThirdParty: TTabSheet
       Caption = 'Third-Party Notices'
-      ClientHeight = 621
-      ClientWidth = 902
-      object pnlThirdPartyBg: TPanel
+      ClientHeight = 591
+      ClientWidth = 1032
+      object pnlThirdPartyBackground: TPanel
         Left = 0
-        Height = 621
+        Height = 591
         Top = 0
-        Width = 902
+        Width = 1032
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 621
-        ClientWidth = 902
+        ClientHeight = 591
+        ClientWidth = 1032
         Color = clWindow
         ParentBackground = False
         ParentColor = False
         TabOrder = 0
         object memThirdParty: TMemo
-          AnchorSideLeft.Control = pnlThirdPartyBg
-          AnchorSideTop.Control = pnlThirdPartyBg
-          AnchorSideRight.Control = pnlThirdPartyBg
+          AnchorSideLeft.Control = pnlThirdPartyBackground
+          AnchorSideTop.Control = pnlThirdPartyBackground
+          AnchorSideRight.Control = pnlThirdPartyBackground
           AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = pnlThirdPartyBg
+          AnchorSideBottom.Control = pnlThirdPartyBackground
           AnchorSideBottom.Side = asrBottom
           Left = 20
-          Height = 581
+          Height = 551
           Top = 20
-          Width = 862
+          Width = 992
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Around = 20
           BorderStyle = bsNone
           Color = clWindow
           Font.CharSet = ANSI_CHARSET
-          Font.Height = -16
+          Font.Height = -18
           Font.Name = 'Consolas'
           Font.Pitch = fpFixed
           Font.Quality = fqDraft
-          Font.Style = [fsBold]
           ParentFont = False
           PopupMenu = pmnDialogAboutMemo
           ReadOnly = True
@@ -400,9 +407,9 @@ object frmDialogAbout: TfrmDialogAbout
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 830
+    Left = 960
     Height = 35
-    Top = 695
+    Top = 665
     Width = 100
     Anchors = [akRight, akBottom]
     BorderSpacing.Right = 20
@@ -499,7 +506,7 @@ object frmDialogAbout: TfrmDialogAbout
     Images = ilDialogAboutIcon
     ImagesWidth = 18
     OnPopup = pmnDialogAboutMemoPopup
-    Left = 688
+    Left = 784
     Top = 320
     object mniDialogAboutMemoCopy: TMenuItem
       Caption = 'Copy'

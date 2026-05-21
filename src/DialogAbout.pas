@@ -68,10 +68,10 @@ type
     tsUserGuide: TTabSheet;
     tsLicense: TTabSheet;
     tsThirdParty: TTabSheet;
-    pnlInfoBg: TPanel;
-    pnlGuideBg: TPanel;
-    pnlLicenseBg: TPanel;
-    pnlThirdPartyBg: TPanel;
+    pnlInfoBackground: TPanel;
+    pnlGuideBackground: TPanel;
+    pnlLicenseBackground: TPanel;
+    pnlThirdPartyBackground: TPanel;
 
     procedure FormCreate(Sender: TObject);
     procedure imgLogoPaint(Sender: TObject);
