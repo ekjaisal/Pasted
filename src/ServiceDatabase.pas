@@ -34,7 +34,7 @@ unit ServiceDatabase;
 interface
 
 uses
-  Classes, SysUtils, MonoLexID, StaticSQLite;
+  Classes, SysUtils, StaticSQLite;
 
 type
   TServiceDatabase = class
@@ -49,6 +49,9 @@ type
   end;
 
 implementation
+
+uses
+  MonoLexID;
 
 constructor TServiceDatabase.Create;
 var
