@@ -34,8 +34,7 @@ unit ServiceHook;
 interface
 
 uses
-  Classes, Clipbrd, Forms, LCLIntf, LCLType, SysUtils
-  {$IFDEF WINDOWS}, Windows{$ENDIF};
+  Classes, Forms, SysUtils {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type
   TOnSnippetTrigger = procedure(const Keyword, DefinitionID: String) of object;
@@ -71,6 +70,9 @@ var
   GlobalEngine: TServiceHook;
 
 implementation
+
+uses
+  Clipbrd, LCLIntf, LCLType;
 
 {$IFDEF WINDOWS}
 const
