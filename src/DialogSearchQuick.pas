@@ -34,8 +34,8 @@ unit DialogSearchQuick;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  LCLType, Menus, laz.VirtualTrees, AppFont, StaticSQLite
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
+  StdCtrls, SysUtils, laz.VirtualTrees, AppFont, StaticSQLite
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type

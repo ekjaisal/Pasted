@@ -34,12 +34,11 @@ unit DialogAbout;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, LCLIntf, LCLType, Buttons, Menus, AppFont, AppIdentity
+  Buttons, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics,
+  LCLIntf, LCLType, Menus, StdCtrls, SysUtils, AppFont, AppIdentity
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type
-
   { TfrmDialogAbout }
   TfrmDialogAbout = class(TForm)
     btnClose: TButton;

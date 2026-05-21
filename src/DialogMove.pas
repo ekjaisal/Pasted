@@ -34,11 +34,10 @@ unit DialogMove;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Menus, AppFont, StaticSQLite;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils, AppFont, StaticSQLite;
 
 type
-
   { TfrmDialogMove }
   TfrmDialogMove = class(TForm)
     btnCancel: TButton;

@@ -34,11 +34,10 @@ unit DialogDefinition;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Clipbrd, LCLType, Menus, AppFont, StaticSQLite, MonoLexID;
+  Classes, Clipbrd, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
+  StdCtrls, SysUtils, AppFont, MonoLexID, StaticSQLite;
 
 type
-
   { TfrmDialogDefinition }
   TfrmDialogDefinition = class(TForm)
     btnSave, btnCancel: TButton;

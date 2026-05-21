@@ -34,11 +34,10 @@ unit DialogInput;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Clipbrd, LCLType, Menus, AppFont;
+  Classes, Clipbrd, Controls, Dialogs, ExtCtrls, Forms, Graphics, LCLType, Menus,
+  StdCtrls, SysUtils, AppFont;
 
 type
-
   { TfrmDialogInput }
   TfrmDialogInput = class(TForm)
     btnCancel: TButton;

@@ -34,7 +34,7 @@ unit ServiceResolve;
 interface
 
 uses
-  Classes, SysUtils, StrUtils, Generics.Collections, StaticSQLite, ServiceHook
+  Classes, Generics.Collections, StrUtils, SysUtils, ServiceHook, StaticSQLite
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$IFDEF WINDOWS}

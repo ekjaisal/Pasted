@@ -34,7 +34,7 @@ unit AppFont;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Forms;
+  Classes, Forms, Graphics, SysUtils;
 
 const
   UI_SIZE_DEFAULT = 10;

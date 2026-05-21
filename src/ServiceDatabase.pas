@@ -34,7 +34,7 @@ unit ServiceDatabase;
 interface
 
 uses
-  Classes, SysUtils, StaticSQLite, MonoLexID;
+  Classes, SysUtils, MonoLexID, StaticSQLite;
 
 type
   TServiceDatabase = class

@@ -34,8 +34,8 @@ unit AppIdentity;
 interface
 
 uses
-  Classes, SysUtils, Windows, Graphics, Math, IntfGraphics, FPImage, LCLType, GraphType,
-  fileinfo, winpeimagereader, elfreader, machoreader;
+  Classes, SysUtils, Windows, Graphics, Math, IntfGraphics, FPImage, LCLType,
+  GraphType, fileinfo, winpeimagereader, elfreader, machoreader;
 
 const
   APP_URL = 'https://pasted.jaisal.in';

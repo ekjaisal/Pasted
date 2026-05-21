@@ -34,7 +34,7 @@ unit ServiceHook;
 interface
 
 uses
-  Classes, SysUtils, Forms, LCLIntf, LCLType, Clipbrd
+  Classes, Clipbrd, Forms, LCLIntf, LCLType, SysUtils
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type

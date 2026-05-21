@@ -34,11 +34,11 @@ unit AppBase;
 interface
 
 uses
-  Classes, SysUtils, DateUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, laz.VirtualTrees, Menus, LCLIntf, Clipbrd, Buttons,
-  AppFont, AppIdentity, ServiceHook, MonoLexID, DialogDefinition, 
-  DialogInput, DialogAbout, StaticSQLite, ServiceResolve,
-  ServiceDatabase, ServiceSettings, DialogSearchQuick, DialogMove
+  Buttons, Classes, Clipbrd, ComCtrls, Controls, DateUtils, Dialogs, ExtCtrls,
+  Forms, Graphics, LCLIntf, Menus, StdCtrls, SysUtils, laz.VirtualTrees, AppFont,
+  AppIdentity, DialogAbout, DialogDefinition, DialogInput, DialogMove,
+  DialogSearchQuick, MonoLexID, ServiceDatabase, ServiceHook, ServiceResolve,
+  ServiceSettings, StaticSQLite
   {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$IFDEF WINDOWS}

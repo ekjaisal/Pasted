@@ -34,7 +34,7 @@ unit ServiceSettings;
 interface
 
 uses
-  Classes, SysUtils, Registry, Forms;
+  Classes, Forms, Registry, SysUtils;
 
 type
   TServiceSettings = class
