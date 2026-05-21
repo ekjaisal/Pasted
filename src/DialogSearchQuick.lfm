@@ -116,7 +116,7 @@ object frmDialogSearchQuick: TfrmDialogSearchQuick
     Margin = 0
     TabOrder = 1
     TextMargin = 8
-    TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages]
+    TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
     TreeOptions.SelectionOptions = [toFullRowSelect]
     OnClick = vstResultsClick
     OnFreeNode = vstResultsFreeNode
