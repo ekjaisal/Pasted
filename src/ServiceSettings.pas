@@ -34,7 +34,7 @@ unit ServiceSettings;
 interface
 
 uses
-  Classes, Forms, Registry, SysUtils;
+  Classes, SysUtils;
 
 type
   TServiceSettings = class
@@ -44,6 +44,9 @@ type
   end;
 
 implementation
+
+uses
+  Forms, Registry;
 
 const
   REG_RUN_KEY = 'Software\Microsoft\Windows\CurrentVersion\Run';
