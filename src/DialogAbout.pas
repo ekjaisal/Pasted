@@ -118,6 +118,30 @@ begin
   end;
 end;
 
+class procedure TfrmDialogAbout.Execute(ATabIndex: Integer = 0);
+begin
+  if Assigned(FAboutInstance) then
+  begin
+    if (ATabIndex >= 0) and (ATabIndex < FAboutInstance.pcAbout.PageCount) then
+      FAboutInstance.pcAbout.PageIndex := ATabIndex;
+    FAboutInstance.BringToFront;
+    {$IFDEF WINDOWS}
+    SetForegroundWindow(FAboutInstance.Handle);
+    {$ENDIF}
+    Exit;
+  end;
+  FAboutInstance := TfrmDialogAbout.Create(nil);
+  try
+    if (ATabIndex >= 0) and (ATabIndex < FAboutInstance.pcAbout.PageCount) then
+      FAboutInstance.pcAbout.PageIndex := ATabIndex;
+    FAboutInstance.ActiveControl := FAboutInstance.btnClose;
+    FAboutInstance.ShowModal;
+  finally
+    FAboutInstance.Free;
+    FAboutInstance := nil;
+  end;
+end;
+
 procedure TfrmDialogAbout.imgLogoPaint(Sender: TObject);
 begin
   imgLogo.Canvas.Brush.Color := clWindow;
@@ -133,14 +157,16 @@ begin
   else if Sender = btnSponsor then OpenURL(DEV_SPONSOR);
 end;
 
-procedure TfrmDialogAbout.btnCloseClick(Sender: TObject);
+procedure TfrmDialogAbout.pmnDialogAboutMemoPopup(Sender: TObject);
+var
+  TargetMemo: TMemo;
 begin
-  Close;
-end;
-
-procedure TfrmDialogAbout.memCaretHide(Sender: TObject);
-begin
-  HideCaret(TMemo(Sender).Handle);
+  if (pmnDialogAboutMemo.PopupComponent is TMemo) then
+  begin
+    TargetMemo := TMemo(pmnDialogAboutMemo.PopupComponent);
+    mniDialogAboutMemoCopy.Enabled := TargetMemo.SelLength > 0;
+    mniDialogAboutMemoSelectAll.Enabled := Length(TargetMemo.Text) > 0;
+  end;
 end;
 
 procedure TfrmDialogAbout.mniDialogAboutMemoCopyClick(Sender: TObject);
@@ -167,40 +193,14 @@ begin
   end;
 end;
 
-procedure TfrmDialogAbout.pmnDialogAboutMemoPopup(Sender: TObject);
-var
-  TargetMemo: TMemo;
+procedure TfrmDialogAbout.memCaretHide(Sender: TObject);
 begin
-  if (pmnDialogAboutMemo.PopupComponent is TMemo) then
-  begin
-    TargetMemo := TMemo(pmnDialogAboutMemo.PopupComponent);
-    mniDialogAboutMemoCopy.Enabled := TargetMemo.SelLength > 0;
-    mniDialogAboutMemoSelectAll.Enabled := Length(TargetMemo.Text) > 0;
-  end;
+  HideCaret(TMemo(Sender).Handle);
 end;
 
-class procedure TfrmDialogAbout.Execute(ATabIndex: Integer = 0);
+procedure TfrmDialogAbout.btnCloseClick(Sender: TObject);
 begin
-  if Assigned(FAboutInstance) then
-  begin
-    if (ATabIndex >= 0) and (ATabIndex < FAboutInstance.pcAbout.PageCount) then
-      FAboutInstance.pcAbout.PageIndex := ATabIndex;
-    FAboutInstance.BringToFront;
-    {$IFDEF WINDOWS}
-    SetForegroundWindow(FAboutInstance.Handle);
-    {$ENDIF}
-    Exit;
-  end;
-  FAboutInstance := TfrmDialogAbout.Create(nil);
-  try
-    if (ATabIndex >= 0) and (ATabIndex < FAboutInstance.pcAbout.PageCount) then
-      FAboutInstance.pcAbout.PageIndex := ATabIndex;
-    FAboutInstance.ActiveControl := FAboutInstance.btnClose;
-    FAboutInstance.ShowModal;
-  finally
-    FAboutInstance.Free;
-    FAboutInstance := nil;
-  end;
+  Close;
 end;
 
 end.

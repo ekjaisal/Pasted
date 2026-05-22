@@ -120,7 +120,6 @@ type
   end;
 
 function SendInput(cInputs: UINT; pInputs: Pointer; cbSize: Integer): UINT; stdcall; external 'user32.dll';
-
 function GetGUIThreadInfo(idThread: DWORD; pgui: PGUIThreadInfo): BOOL; stdcall; external 'user32.dll';
 
 function CloneClipboardHandle(Format: UINT; Data: THandle): THandle;
@@ -306,12 +305,6 @@ begin
   {$ENDIF}
 end;
 
-destructor TServiceResolve.Destroy;
-begin
-  FTriggerMap.Free;
-  inherited Destroy;
-end;
-
 procedure TServiceResolve.RebuildIndex;
 var
   Res: TDBResult;
@@ -322,6 +315,12 @@ begin
   if Length(Res) > 0 then
     FTriggerMap.Capacity := StrToIntDef(Res[0][0], 0);
   FDB.QueryProc('SELECT trigger_word, id FROM definitions', @ProcessResolveRow);
+end;
+
+procedure TServiceResolve.ProcessResolveRow(const Row: array of String);
+begin
+  if Length(Row) = 0 then;
+  FTriggerMap.AddOrSetValue(LowerCase(Row[0]), Row[1]);
 end;
 
 function TServiceResolve.OnKeyLogResolve(const CurrentBuffer: String; out MatchedTrigger: String; out MatchedMonoLexID: String): Boolean;
@@ -342,57 +341,6 @@ begin
       Exit;
     end;
   end;
-end;
-
-procedure TServiceResolve.ProcessResolveRow(const Row: array of String);
-begin
-  if Length(Row) = 0 then;
-  FTriggerMap.AddOrSetValue(LowerCase(Row[0]), Row[1]);
-end;
-
-function TServiceResolve.ProcessDynamicContent(const InputText: String): String;
-var
-  CurrentPos, PStart, PEnd: Integer;
-  Tag, Replacement: String;
-  IsHandled: Boolean;
-begin
-  Result := InputText;
-  CurrentPos := 1;
-  repeat
-    PStart := PosEx('${', Result, CurrentPos);
-    if PStart = 0 then Break;
-    if (PStart > 1) and (Result[PStart - 1] = '\') then
-    begin
-      Delete(Result, PStart - 1, 1);
-      CurrentPos := PStart + 1;
-      Continue;
-    end;
-    PEnd := PosEx('}', Result, PStart);
-    if PEnd = 0 then
-    begin
-      CurrentPos := PStart + 1;
-      Continue;
-    end;
-    Tag := Copy(Result, PStart + 2, PEnd - (PStart + 2));
-    Replacement := '';
-    IsHandled := False;
-    try
-      Replacement := FormatDateTime(Tag, Now);
-      IsHandled := True;
-    except
-      IsHandled := False;
-    end;
-    if IsHandled then
-    begin
-      Delete(Result, PStart, (PEnd - PStart) + 1);
-      Insert(Replacement, Result, PStart);
-      CurrentPos := PStart + Length(Replacement);
-    end
-    else
-    begin
-      CurrentPos := PEnd + 1;
-    end;
-  until False;
 end;
 
 procedure TServiceResolve.OnSnippetTriggered(const Keyword, DefinitionID: String);
@@ -524,6 +472,51 @@ begin
   end;
 end;
 
+function TServiceResolve.ProcessDynamicContent(const InputText: String): String;
+var
+  CurrentPos, PStart, PEnd: Integer;
+  Tag, Replacement: String;
+  IsHandled: Boolean;
+begin
+  Result := InputText;
+  CurrentPos := 1;
+  repeat
+    PStart := PosEx('${', Result, CurrentPos);
+    if PStart = 0 then Break;
+    if (PStart > 1) and (Result[PStart - 1] = '\') then
+    begin
+      Delete(Result, PStart - 1, 1);
+      CurrentPos := PStart + 1;
+      Continue;
+    end;
+    PEnd := PosEx('}', Result, PStart);
+    if PEnd = 0 then
+    begin
+      CurrentPos := PStart + 1;
+      Continue;
+    end;
+    Tag := Copy(Result, PStart + 2, PEnd - (PStart + 2));
+    Replacement := '';
+    IsHandled := False;
+    try
+      Replacement := FormatDateTime(Tag, Now);
+      IsHandled := True;
+    except
+      IsHandled := False;
+    end;
+    if IsHandled then
+    begin
+      Delete(Result, PStart, (PEnd - PStart) + 1);
+      Insert(Replacement, Result, PStart);
+      CurrentPos := PStart + Length(Replacement);
+    end
+    else
+    begin
+      CurrentPos := PEnd + 1;
+    end;
+  until False;
+end;
+
 procedure TServiceResolve.RestoreClipboard;
 {$IFDEF WINDOWS}
 var
@@ -584,6 +577,12 @@ begin
   end;
   SetLength(FClipboardBackup, 0);
   {$ENDIF}
+end;
+
+destructor TServiceResolve.Destroy;
+begin
+  FTriggerMap.Free;
+  inherited Destroy;
 end;
 
 end.

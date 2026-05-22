@@ -83,6 +83,21 @@ uses
 
 {$R *.lfm}
 
+procedure TfrmDialogSearchQuick.FormCreate(Sender: TObject);
+begin
+  ApplyAppFont(Self);
+  vstResults.NodeDataSize := SizeOf(TDialogSearchQuickData);
+  UpdateInterfaceState;
+end;
+
+procedure TfrmDialogSearchQuick.FormShow(Sender: TObject);
+begin
+  if Assigned(GlobalEngine) then GlobalEngine.Stop;
+  edtSearch.Clear;
+  UpdateInterfaceState;
+  edtSearch.SetFocus;
+end;
+
 class function TfrmDialogSearchQuick.Execute(ADB: TStaticSQLite): String;
 var
   Dlg: TfrmDialogSearchQuick;
@@ -115,35 +130,6 @@ begin
   finally
     Dlg.Free;
   end;
-end;
-
-procedure TfrmDialogSearchQuick.FormCreate(Sender: TObject);
-begin
-  ApplyAppFont(Self);
-  vstResults.NodeDataSize := SizeOf(TDialogSearchQuickData);
-  UpdateInterfaceState;
-end;
-
-procedure TfrmDialogSearchQuick.FormShow(Sender: TObject);
-begin
-  if Assigned(GlobalEngine) then GlobalEngine.Stop;
-  edtSearch.Clear;
-  UpdateInterfaceState;
-  edtSearch.SetFocus;
-end;
-
-procedure TfrmDialogSearchQuick.FormDeactivate(Sender: TObject);
-begin
-  if Visible and (FSelectedID = '') then
-  begin
-    Close;
-  end;
-end;
-
-procedure TfrmDialogSearchQuick.FormDestroy(Sender: TObject);
-begin
-  if Assigned(GlobalEngine) then GlobalEngine.Start;
-  vstResults.Clear;
 end;
 
 procedure TfrmDialogSearchQuick.UpdateInterfaceState;
@@ -245,6 +231,18 @@ begin
   end;
 end;
 
+procedure TfrmDialogSearchQuick.vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+var
+  Data: PDialogSearchQuickData;
+begin
+  if TextType = ttNormal then;
+  Data := Sender.GetNodeData(Node);
+  case Column of
+    0: CellText := Data^.Name;
+    1: CellText := Data^.Trigger;
+  end;
+end;
+
 procedure TfrmDialogSearchQuick.vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Shift = [] then;
@@ -274,24 +272,26 @@ begin
   ExecuteSelected;
 end;
 
-procedure TfrmDialogSearchQuick.vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-var
-  Data: PDialogSearchQuickData;
-begin
-  if TextType = ttNormal then;
-  Data := Sender.GetNodeData(Node);
-  case Column of
-    0: CellText := Data^.Name;
-    1: CellText := Data^.Trigger;
-  end;
-end;
-
 procedure TfrmDialogSearchQuick.vstResultsFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   Data: PDialogSearchQuickData;
 begin
   Data := Sender.GetNodeData(Node);
   Finalize(Data^);
+end;
+
+procedure TfrmDialogSearchQuick.FormDeactivate(Sender: TObject);
+begin
+  if Visible and (FSelectedID = '') then
+  begin
+    Close;
+  end;
+end;
+
+procedure TfrmDialogSearchQuick.FormDestroy(Sender: TObject);
+begin
+  if Assigned(GlobalEngine) then GlobalEngine.Start;
+  vstResults.Clear;
 end;
 
 end.

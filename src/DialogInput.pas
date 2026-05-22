@@ -120,10 +120,19 @@ begin
   ModalResult := mrCancel;
 end;
 
-procedure TfrmDialogInput.mniDialogInputCopyClick(Sender: TObject);
+procedure TfrmDialogInput.pmnDialogInputPopup(Sender: TObject);
+var
+  TargetEdit: TCustomEdit;
 begin
   if (pmnDialogInput.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogInput.PopupComponent).CopyToClipboard;
+  begin
+    TargetEdit := TCustomEdit(pmnDialogInput.PopupComponent);
+    mniDialogInputReadingOrder.Checked := TargetEdit.BidiMode = bdRightToLeft;
+    mniDialogInputSelectAll.Enabled := Length(TargetEdit.Text) > 0;
+    mniDialogInputCut.Enabled := TargetEdit.SelLength > 0;
+    mniDialogInputCopy.Enabled := TargetEdit.SelLength > 0;
+    mniDialogInputPaste.Enabled := Clipboard.HasFormat(CF_TEXT);
+  end;
 end;
 
 procedure TfrmDialogInput.mniDialogInputCutClick(Sender: TObject);
@@ -132,10 +141,22 @@ begin
     TCustomEdit(pmnDialogInput.PopupComponent).CutToClipboard;
 end;
 
+procedure TfrmDialogInput.mniDialogInputCopyClick(Sender: TObject);
+begin
+  if (pmnDialogInput.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogInput.PopupComponent).CopyToClipboard;
+end;
+
 procedure TfrmDialogInput.mniDialogInputPasteClick(Sender: TObject);
 begin
   if (pmnDialogInput.PopupComponent is TCustomEdit) then
     TCustomEdit(pmnDialogInput.PopupComponent).PasteFromClipboard;
+end;
+
+procedure TfrmDialogInput.mniDialogInputSelectAllClick(Sender: TObject);
+begin
+  if (pmnDialogInput.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogInput.PopupComponent).SelectAll;
 end;
 
 procedure TfrmDialogInput.mniDialogInputReadingOrderClick(Sender: TObject);
@@ -149,27 +170,6 @@ begin
       TargetEdit.BidiMode := bdLeftToRight
     else
       TargetEdit.BidiMode := bdRightToLeft;
-  end;
-end;
-
-procedure TfrmDialogInput.mniDialogInputSelectAllClick(Sender: TObject);
-begin
-  if (pmnDialogInput.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogInput.PopupComponent).SelectAll;
-end;
-
-procedure TfrmDialogInput.pmnDialogInputPopup(Sender: TObject);
-var
-  TargetEdit: TCustomEdit;
-begin
-  if (pmnDialogInput.PopupComponent is TCustomEdit) then
-  begin
-    TargetEdit := TCustomEdit(pmnDialogInput.PopupComponent);
-    mniDialogInputReadingOrder.Checked := TargetEdit.BidiMode = bdRightToLeft;
-    mniDialogInputSelectAll.Enabled := Length(TargetEdit.Text) > 0;
-    mniDialogInputCut.Enabled := TargetEdit.SelLength > 0;
-    mniDialogInputCopy.Enabled := TargetEdit.SelLength > 0;
-    mniDialogInputPaste.Enabled := Clipboard.HasFormat(CF_TEXT);
   end;
 end;
 

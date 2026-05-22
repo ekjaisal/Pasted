@@ -92,6 +92,36 @@ begin
   edtName.SetFocus;
 end;
 
+class function TfrmDialogDefinition.Execute(ADB: TStaticSQLite; const ATitle: String; const ADefID: String; var AName, ATrigger, ADefText, ACollID: String): Boolean;
+var
+  Dlg: TfrmDialogDefinition;
+  i: Integer;
+begin
+  Result := False;
+  Dlg := TfrmDialogDefinition.Create(nil);
+  try
+    Dlg.FDB := ADB;
+    Dlg.Caption := ATitle;
+    Dlg.FDefinitionID := ADefID;
+    Dlg.edtName.Text := AName;
+    Dlg.edtTrigger.Text := ATrigger;
+    Dlg.memDefinition.Text := ADefText;
+    Dlg.LoadCollections(ACollID);
+    if Dlg.ShowModal = mrOk then
+    begin
+      AName := Dlg.edtName.Text;
+      ATrigger := Dlg.edtTrigger.Text;
+      ADefText := Dlg.memDefinition.Text;
+      ACollID := Dlg.FResolvedCollID;
+      Result := True;
+    end;
+  finally
+    for i := 0 to Dlg.cmbCollection.Items.Count - 1 do
+      Dispose(PString(Dlg.cmbCollection.Items.Objects[i]));
+    Dlg.Free;
+  end;
+end;
+
 procedure TfrmDialogDefinition.LoadCollections(const SelectedID: String);
 var 
   Res: TDBResult; 
@@ -132,36 +162,6 @@ begin
   Result := True;
 end;
 
-class function TfrmDialogDefinition.Execute(ADB: TStaticSQLite; const ATitle: String; const ADefID: String; var AName, ATrigger, ADefText, ACollID: String): Boolean;
-var
-  Dlg: TfrmDialogDefinition;
-  i: Integer;
-begin
-  Result := False;
-  Dlg := TfrmDialogDefinition.Create(nil);
-  try
-    Dlg.FDB := ADB;
-    Dlg.Caption := ATitle;
-    Dlg.FDefinitionID := ADefID;
-    Dlg.edtName.Text := AName;
-    Dlg.edtTrigger.Text := ATrigger;
-    Dlg.memDefinition.Text := ADefText;
-    Dlg.LoadCollections(ACollID);
-    if Dlg.ShowModal = mrOk then
-    begin
-      AName := Dlg.edtName.Text;
-      ATrigger := Dlg.edtTrigger.Text;
-      ADefText := Dlg.memDefinition.Text;
-      ACollID := Dlg.FResolvedCollID;
-      Result := True;
-    end;
-  finally
-    for i := 0 to Dlg.cmbCollection.Items.Count - 1 do
-      Dispose(PString(Dlg.cmbCollection.Items.Objects[i]));
-    Dlg.Free;
-  end;
-end;
-
 procedure TfrmDialogDefinition.btnSaveClick(Sender: TObject);
 var
   CollName: String;
@@ -187,44 +187,6 @@ begin
   ModalResult := mrCancel;
 end;
 
-procedure TfrmDialogDefinition.mniDialogDefinitionCopyClick(Sender: TObject);
-begin
-  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogDefinition.PopupComponent).CopyToClipboard;
-end;
-
-procedure TfrmDialogDefinition.mniDialogDefinitionCutClick(Sender: TObject);
-begin
-  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogDefinition.PopupComponent).CutToClipboard;
-end;
-
-procedure TfrmDialogDefinition.mniDialogDefinitionPasteClick(Sender: TObject);
-begin
-  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogDefinition.PopupComponent).PasteFromClipboard;
-end;
-
-procedure TfrmDialogDefinition.mniDialogDefinitionReadingOrderClick(Sender: TObject);
-var
-  TargetEdit: TCustomEdit;
-begin
-  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
-  begin
-    TargetEdit := TCustomEdit(pmnDialogDefinition.PopupComponent);
-    if TargetEdit.BidiMode = bdRightToLeft then
-      TargetEdit.BidiMode := bdLeftToRight
-    else
-      TargetEdit.BidiMode := bdRightToLeft;
-  end;
-end;
-
-procedure TfrmDialogDefinition.mniDialogDefinitionSelectAllClick(Sender: TObject);
-begin
-  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
-    TCustomEdit(pmnDialogDefinition.PopupComponent).SelectAll;
-end;
-
 procedure TfrmDialogDefinition.pmnDialogDefinitionPopup(Sender: TObject);
 var
   TargetEdit: TCustomEdit;
@@ -239,6 +201,44 @@ begin
     mniDialogDefinitionCut.Enabled := TargetEdit.SelLength > 0;
     mniDialogDefinitionCopy.Enabled := TargetEdit.SelLength > 0;
     mniDialogDefinitionPaste.Enabled := Clipboard.HasFormat(CF_TEXT);
+  end;
+end;
+
+procedure TfrmDialogDefinition.mniDialogDefinitionCutClick(Sender: TObject);
+begin
+  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogDefinition.PopupComponent).CutToClipboard;
+end;
+
+procedure TfrmDialogDefinition.mniDialogDefinitionCopyClick(Sender: TObject);
+begin
+  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogDefinition.PopupComponent).CopyToClipboard;
+end;
+
+procedure TfrmDialogDefinition.mniDialogDefinitionPasteClick(Sender: TObject);
+begin
+  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogDefinition.PopupComponent).PasteFromClipboard;
+end;
+
+procedure TfrmDialogDefinition.mniDialogDefinitionSelectAllClick(Sender: TObject);
+begin
+  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
+    TCustomEdit(pmnDialogDefinition.PopupComponent).SelectAll;
+end;
+
+procedure TfrmDialogDefinition.mniDialogDefinitionReadingOrderClick(Sender: TObject);
+var
+  TargetEdit: TCustomEdit;
+begin
+  if (pmnDialogDefinition.PopupComponent is TCustomEdit) then
+  begin
+    TargetEdit := TCustomEdit(pmnDialogDefinition.PopupComponent);
+    if TargetEdit.BidiMode = bdRightToLeft then
+      TargetEdit.BidiMode := bdLeftToRight
+    else
+      TargetEdit.BidiMode := bdRightToLeft;
   end;
 end;
 

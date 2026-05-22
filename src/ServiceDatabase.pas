@@ -66,19 +66,6 @@ begin
   CleanupOldBackups;
 end;
 
-destructor TServiceDatabase.Destroy;
-begin
-  if Assigned(FDB) then
-  begin
-    FDB.Exec('PRAGMA wal_checkpoint(TRUNCATE);');
-    FDB.Exec('PRAGMA optimize;');
-    FDB.Exec('VACUUM;');
-    FDB.Exec('PRAGMA journal_mode=DELETE;');
-    FDB.Free;
-  end;
-  inherited Destroy;
-end;
-
 procedure TServiceDatabase.EnsureSchema;
 var
   Res: TDBResult;
@@ -121,6 +108,19 @@ begin
   finally
     FileList.Free;
   end;
+end;
+
+destructor TServiceDatabase.Destroy;
+begin
+  if Assigned(FDB) then
+  begin
+    FDB.Exec('PRAGMA wal_checkpoint(TRUNCATE);');
+    FDB.Exec('PRAGMA optimize;');
+    FDB.Exec('VACUUM;');
+    FDB.Exec('PRAGMA journal_mode=DELETE;');
+    FDB.Free;
+  end;
+  inherited Destroy;
 end;
 
 end.

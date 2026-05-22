@@ -283,6 +283,26 @@ begin
     DumpMemory;
 end;
 
+procedure TfrmAppBase.FormShow(Sender: TObject);
+begin
+  {$IFDEF WINDOWS}
+  BringWindowToTop(Handle);
+  SetForegroundWindow(Handle);
+  {$ENDIF}
+  Application.BringToFront;
+end;
+
+procedure TfrmAppBase.FormWindowStateChange(Sender: TObject);
+begin 
+  if WindowState = wsMinimized
+  then DumpMemory; 
+end;
+
+procedure TfrmAppBase.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  if not FRealExit then begin CanClose := False; Hide; DumpMemory; end else CanClose := True;
+end;
+
 procedure TfrmAppBase.FormDestroy(Sender: TObject);
 begin
   {$IFDEF WINDOWS}
@@ -295,10 +315,317 @@ begin
   if Assigned(FServiceDB) then FServiceDB.Free;
 end;
 
-procedure TfrmAppBase.IdleTimerTimer(Sender: TObject);
+procedure TfrmAppBase.LoadCollections;
+var 
+  Res: TDBResult; 
+  Node: PVirtualNode; 
+  Data: PCollectionData; 
+  TotalCount: Integer;
 begin
-  DumpMemory;
+  vstCollection.BeginUpdate;
+  try
+    vstCollection.Clear;
+    TotalCount := 0;
+    Res := FServiceDB.DB.Query('SELECT COUNT(*) FROM definitions');
+    if Length(Res) > 0 then TotalCount := StrToIntDef(Res[0][0], 0);
+    Node := vstCollection.AddChild(nil);
+    Data := vstCollection.GetNodeData(Node);
+    Data^.ID := COLLECTION_ALL_ID;
+    Data^.Name := 'All';
+    Data^.Count := TotalCount;
+    FServiceDB.DB.QueryProc('SELECT id, name, (SELECT COUNT(*) FROM definitions d WHERE d.collection_id = c.id) FROM collections c', @ProcessCollectionRow);
+  finally
+    vstCollection.EndUpdate;
+    vstCollection.SortTree(vstCollection.Header.SortColumn, vstCollection.Header.SortDirection);
+  end;
+end;
+
+procedure TfrmAppBase.ProcessCollectionRow(const Row: array of String);
+var
+  Node: PVirtualNode;
+  Data: PCollectionData;
+begin
+  if Length(Row) = 0 then;
+  Node := vstCollection.AddChild(nil);
+  Data := vstCollection.GetNodeData(Node);
+  Data^.ID := Row[0];
+  Data^.Name := Row[1];
+  Data^.Count := StrToIntDef(Row[2], 0);
+end;
+
+procedure TfrmAppBase.RefreshTriggerList;
+var
+  SQL, SVal, SearchFilter: String;
+  CollData: PCollectionData;
+  SelectedCollID: String;
+  SortField, SortOrder: String;
+begin
+  SelectedCollID := COLLECTION_ALL_ID;
+  if vstCollection.GetFirstSelected <> nil then
+  begin
+    CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
+    SelectedCollID := CollData^.ID;
+  end;
+  if Trim(edtSearch.Text) <> '' then
+  begin
+    SVal := QuotedStr('%' + Trim(edtSearch.Text) + '%');
+    SearchFilter := ' AND (d.name LIKE ' + SVal + ' OR d.trigger_word LIKE ' + SVal + ' OR d.definition_text LIKE ' + SVal + ')';
+  end
+  else
+    SearchFilter := '';
+  case vstTrigger.Header.SortColumn of
+    1: SortField := 'd.trigger_word';
+    2: SortField := 'c.name';
+    3: SortField := 'd.last_triggered';
+    else SortField := 'd.name';
+  end;
+  if vstTrigger.Header.SortDirection = sdAscending then SortOrder := ' ASC' else SortOrder := ' DESC';
+  SQL := 'SELECT d.id, d.name, d.trigger_word, c.name, d.last_triggered FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id WHERE 1=1' + SearchFilter;
+  if SelectedCollID <> COLLECTION_ALL_ID then
+    SQL := SQL + ' AND d.collection_id = ' + QuotedStr(SelectedCollID);
+  SQL := SQL + ' ORDER BY ' + SortField + SortOrder;
+  vstTrigger.BeginUpdate;
+  try
+    vstTrigger.Clear;
+    FServiceDB.DB.QueryProc(SQL, @ProcessTriggerRow);
+  finally
+    vstTrigger.EndUpdate;
+  end;
   IdleTimer.Enabled := False;
+  IdleTimer.Enabled := True;
+end;
+
+procedure TfrmAppBase.ProcessTriggerRow(const Row: array of String);
+var
+  Node: PVirtualNode;
+  Data: PTriggerData;
+  DT: TDateTime;
+begin
+  if Length(Row) = 0 then;
+  Node := vstTrigger.AddChild(nil);
+  Data := vstTrigger.GetNodeData(Node);
+  Data^.ID := Row[0];
+  Data^.Name := Row[1];
+  Data^.Trigger := Row[2];
+  Data^.CollectionName := Row[3];
+  if (Row[4] <> '') and TryStrToDateTime(Row[4], DT, FFS) then
+    Data^.LastUsed := FormatDateTime('yyyy-mm-dd hh:nn:ss', UniversalTimeToLocal(DT))
+  else
+    Data^.LastUsed := Row[4];
+end;
+
+procedure TfrmAppBase.UpdatePreview;
+var
+  Res: TDBResult;
+  Data: PTriggerData;
+begin
+  if vstTrigger.SelectedCount > 1 then
+  begin
+    memPreview.Text := 'Multiple triggers selected.';
+    Exit;
+  end;
+  if vstTrigger.GetFirstSelected <> nil then
+  begin
+    Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
+    Res := FServiceDB.DB.Query('SELECT definition_text FROM definitions WHERE id = ' + QuotedStr(Data^.ID));
+    if Length(Res) > 0 then memPreview.Text := Res[0][0] else memPreview.Text := 'Select a trigger to view its definition.';
+  end else memPreview.Text := 'Select a trigger to view its definition.';
+end;
+
+procedure TfrmAppBase.UpdateAutoStartStatus;
+begin
+  cbxAutoStart.OnChange := nil;
+  cbxAutoStart.Checked := TServiceSettings.IsAutoStartEnabled;
+  if cbxAutoStart.Checked then lblAutoStart.Caption := 'Enabled on system start-up'
+  else lblAutoStart.Caption := 'Disabled on system start-up';
+  cbxAutoStart.OnChange := @cbxAutoStartChange;
+end;
+
+procedure TfrmAppBase.cbxAutoStartChange(Sender: TObject);
+begin
+  TServiceSettings.SetAutoStart(cbxAutoStart.Checked);
+  if cbxAutoStart.Checked then lblAutoStart.Caption := 'Enabled on system start-up'
+  else lblAutoStart.Caption := 'Disabled on system start-up';
+end;
+
+procedure TfrmAppBase.vstCollectionGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+var Data: PCollectionData; 
+begin 
+  if TextType = ttNormal then;
+  Data := Sender.GetNodeData(Node); 
+  if Column = 0 then CellText := Data^.Name else CellText := IntToStr(Data^.Count); 
+end;
+
+procedure TfrmAppBase.vstCollectionCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+var 
+  Data1, Data2: PCollectionData;
+  DirectionMod: Integer;
+begin
+  Data1 := Sender.GetNodeData(Node1);
+  Data2 := Sender.GetNodeData(Node2);
+  if TLazVirtualStringTree(Sender).Header.SortDirection = sdAscending then DirectionMod := 1 else DirectionMod := -1;
+  if Data1^.ID = COLLECTION_ALL_ID then begin Result := -1 * DirectionMod; Exit; end;
+  if Data2^.ID = COLLECTION_ALL_ID then begin Result := 1 * DirectionMod; Exit; end;
+  case Column of
+    0: Result := CompareText(Data1^.Name, Data2^.Name);
+    1: 
+    begin
+      if Data1^.Count > Data2^.Count then Result := 1
+      else if Data1^.Count < Data2^.Count then Result := -1
+      else Result := 0;
+    end;
+  end;
+end;
+
+procedure TfrmAppBase.vstCollectionFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+var Data: PCollectionData;
+begin 
+  Data := Sender.GetNodeData(Node);
+  Finalize(Data^);
+end;
+
+procedure TfrmAppBase.vstCollectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode); 
+begin 
+  if Assigned(Node) then;
+  RefreshTriggerList; 
+end;
+
+procedure TfrmAppBase.vstCollectionHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+begin
+  if Sender.SortColumn = HitInfo.Column then
+  begin
+    if Sender.SortDirection = sdAscending then Sender.SortDirection := sdDescending
+    else Sender.SortDirection := sdAscending;
+  end
+  else
+  begin
+    Sender.SortColumn := HitInfo.Column;
+    Sender.SortDirection := sdAscending;
+  end;
+  Sender.Treeview.SortTree(HitInfo.Column, Sender.SortDirection);
+end;
+
+procedure TfrmAppBase.vstTriggerGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+var Data: PTriggerData;
+begin
+  if TextType = ttNormal then;
+  Data := Sender.GetNodeData(Node);
+  case Column of
+    0: CellText := Data^.Name;
+    1: CellText := Data^.Trigger;
+    2: CellText := Data^.CollectionName;
+    3: CellText := Data^.LastUsed;
+  end;
+end;
+
+procedure TfrmAppBase.vstTriggerCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+var Data1, Data2: PTriggerData;
+begin
+  Data1 := Sender.GetNodeData(Node1);
+  Data2 := Sender.GetNodeData(Node2);
+  case Column of
+    0: Result := CompareText(Data1^.Name, Data2^.Name);
+    1: Result := CompareText(Data1^.Trigger, Data2^.Trigger);
+    2: Result := CompareText(Data1^.CollectionName, Data2^.CollectionName);
+    3: Result := CompareText(Data1^.LastUsed, Data2^.LastUsed);
+  end;
+end;
+
+procedure TfrmAppBase.vstTriggerFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+var Data: PTriggerData;
+begin
+  Data := Sender.GetNodeData(Node);
+  Finalize(Data^);
+end;
+
+procedure TfrmAppBase.vstTriggerChange(Sender: TBaseVirtualTree; Node: PVirtualNode); 
+begin 
+  if Assigned(Node) then;
+  UpdatePreview; 
+end;
+
+procedure TfrmAppBase.vstTriggerHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+begin
+  if Sender.SortColumn = HitInfo.Column then
+  begin
+    if Sender.SortDirection = sdAscending then Sender.SortDirection := sdDescending
+    else Sender.SortDirection := sdAscending;
+  end
+  else
+  begin
+    Sender.SortColumn := HitInfo.Column;
+    Sender.SortDirection := sdAscending;
+  end;
+  RefreshTriggerList;
+end;
+
+procedure TfrmAppBase.edtSearchChange(Sender: TObject);
+begin
+  SearchTimer.Enabled := False;
+  SearchTimer.Enabled := True;
+end;
+
+procedure TfrmAppBase.SearchTimerTimer(Sender: TObject);
+begin
+  SearchTimer.Enabled := False;
+  RefreshTriggerList;
+end;
+
+procedure TfrmAppBase.edtSearchEnter(Sender: TObject);
+begin
+  GlobalEngine.Stop;
+end;
+
+procedure TfrmAppBase.edtSearchExit(Sender: TObject);
+begin
+  GlobalEngine.Start;
+end;
+
+procedure TfrmAppBase.btnCollectionAddClick(Sender: TObject);
+var 
+  NewCollName: String; 
+  Res: TDBResult;
+  NewID: String;
+begin
+  if TfrmDialogInput.Execute('New Collection', 'Collection Name', '', NewCollName) then
+  begin
+    Res := FServiceDB.DB.Query('SELECT id FROM collections WHERE name = ' + QuotedStr(NewCollName) + ' COLLATE NOCASE');
+    if Length(Res) = 0 then
+    begin
+      NewID := NewMonoLexID;
+      FServiceDB.DB.Exec('INSERT INTO collections (id, name) VALUES (' + QuotedStr(NewID) + ',' + QuotedStr(NewCollName) + ')');
+      LoadCollections;
+      SelectCollectionByID(NewID);
+    end else MessageDlg('Validation Error', 'A collection with this name already exists.', mtWarning, [mbOK], 0);
+  end;
+end;
+
+procedure TfrmAppBase.mniTreeCollectionRenameClick(Sender: TObject);
+var
+  Data: PCollectionData;
+  NewName: String;
+  Res: TDBResult;
+  TargetID: String;
+begin
+  if vstCollection.SelectedCount <> 1 then Exit;
+  Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
+  if Data^.ID = COLLECTION_ALL_ID then Exit;
+  TargetID := Data^.ID;
+  if TfrmDialogInput.Execute('Rename Collection', 'Enter new name', Data^.Name, NewName) then
+  begin
+    if SameText(Data^.Name, NewName) then Exit;
+    Res := FServiceDB.DB.Query('SELECT id FROM collections WHERE name = ' + QuotedStr(NewName) + ' COLLATE NOCASE');
+    if Length(Res) = 0 then
+    begin
+      FServiceDB.DB.Exec('UPDATE collections SET name = ' + QuotedStr(NewName) + ' WHERE id = ' + QuotedStr(TargetID));
+      LoadCollections;
+      SelectCollectionByID(TargetID);
+    end
+    else
+    begin
+      MessageDlg('Validation Error', 'A collection with this name already exists.', mtWarning, [mbOK], 0);
+    end;
+  end;
 end;
 
 procedure TfrmAppBase.mniTreeCollectionDeleteClick(Sender: TObject);
@@ -411,470 +738,163 @@ begin
   end;
 end;
 
-procedure TfrmAppBase.mniTreeCollectionRenameClick(Sender: TObject);
+procedure TfrmAppBase.pmnCollectionPopup(Sender: TObject);
 var
-  Data: PCollectionData;
-  NewName: String;
-  Res: TDBResult;
-  TargetID: String;
-begin
-  if vstCollection.SelectedCount <> 1 then Exit;
-  Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
-  if Data^.ID = COLLECTION_ALL_ID then Exit;
-  TargetID := Data^.ID;
-  if TfrmDialogInput.Execute('Rename Collection', 'Enter new name', Data^.Name, NewName) then
-  begin
-    if SameText(Data^.Name, NewName) then Exit;
-    Res := FServiceDB.DB.Query('SELECT id FROM collections WHERE name = ' + QuotedStr(NewName) + ' COLLATE NOCASE');
-    if Length(Res) = 0 then
-    begin
-      FServiceDB.DB.Exec('UPDATE collections SET name = ' + QuotedStr(NewName) + ' WHERE id = ' + QuotedStr(TargetID));
-      LoadCollections;
-      SelectCollectionByID(TargetID);
-    end
-    else
-    begin
-      MessageDlg('Validation Error', 'A collection with this name already exists.', mtWarning, [mbOK], 0);
-    end;
-  end;
-end;
-
-procedure TfrmAppBase.mniControlExitClick(Sender: TObject);
-begin
-  FRealExit := True;
-  Application.Terminate;
-end;
-
-procedure TfrmAppBase.mniControlPauseResumeClick(Sender: TObject);
-begin
-  if GlobalEngine.Active then
-  begin
-    GlobalEngine.Stop;
-    mniControlPauseResume.Caption := 'Resume Activity';
-    mniControlPauseResume.ImageIndex := 11;
-    mniTrayPauseResume.Caption := 'Resume Activity';
-    mniTrayPauseResume.ImageIndex := 11;
-    lblStatus.Caption := 'Status: Paused';
-  end
-  else
-  begin
-    GlobalEngine.Start;
-    mniControlPauseResume.Caption := 'Pause Activity';
-    mniControlPauseResume.ImageIndex := 10;
-    mniTrayPauseResume.Caption := 'Pause Activity';
-    mniTrayPauseResume.ImageIndex := 10;
-    lblStatus.Caption := 'Status: Active';
-  end;
-end;
-
-procedure TfrmAppBase.mniDataBackupClick(Sender: TObject);
-var
-  TestStream: TFileStream;
-begin
-  dlgBackup.Title := 'Back Up Database';
-  dlgBackup.FileName := 'Pasted_Backup_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.db';
-  if dlgBackup.Execute then
-  begin
-    try
-      TestStream := TFileStream.Create(dlgBackup.FileName, fmCreate or fmShareExclusive);
-      TestStream.Free;
-      SysUtils.DeleteFile(dlgBackup.FileName);
-      FServiceDB.DB.Exec('VACUUM INTO ' + QuotedStr(dlgBackup.FileName) + ';');
-      if FileExists(dlgBackup.FileName) then
-        MessageDlg('Backup Successful', 'Data has been successfully backed up.', mtInformation, [mbOK], 0)
-      else
-        MessageDlg('Backup Error', 'Pasted could not write to the destination.', mtError, [mbOK], 0);
-    except
-      on E: EFCreateError do
-        MessageDlg('Backup Error', 'Could not create the backup. Please verify directory permissions.', mtError, [mbOK], 0);
-      on E: Exception do
-        MessageDlg('Backup Error', 'An unexpected error occurred during backup: ' + E.Message, mtError, [mbOK], 0);
-    end;
-  end;
-end;
-
-procedure TfrmAppBase.mniDataRestoreClick(Sender: TObject);
-var
-  DBPath: String;
-  BackupPath: String;
-  InStream, OutStream: TFileStream;
-  TempDB: TStaticSQLite;
-  Res: TDBResult;
-begin
-  if MessageDlg('Confirm Restore', 'Restoring will overwrite the current data. Do you wish to proceed?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
-    Exit;
-  dlgRestore.Title := 'Restore Database';
-  if dlgRestore.Execute then
-  begin
-    DBPath := IncludeTrailingPathDelimiter(GetAppConfigDir(False)) + 'Pasted.db';
-    if SameText(dlgRestore.FileName, DBPath) then
-    begin
-      MessageDlg('Restore Error', 'You cannot restore using the currently active database file.', mtError, [mbOK], 0);
-      Exit;
-    end;
-    try
-      TempDB := TStaticSQLite.Create(dlgRestore.FileName);
-      try
-        Res := TempDB.Query('SELECT COUNT(*) FROM collections');
-        if Length(Res) = 0 then
-        begin
-          MessageDlg('Restore Error', 'The selected file is not a valid Pasted database or is corrupted.', mtError, [mbOK], 0);
-          Exit;
-        end;
-      finally
-        TempDB.Free;
-      end;
-    except
-      MessageDlg('Restore Error', 'Could not open the selected file. It may be corrupted or inaccessible.', mtError, [mbOK], 0);
-      Exit;
-    end;
-    GlobalEngine.Stop;
-    if Assigned(FResolver) then FreeAndNil(FResolver);
-    if Assigned(FServiceDB) then FreeAndNil(FServiceDB);
-    BackupPath := DBPath + '.bak_' + FormatDateTime('yyyymmdd_hhnnss', Now);
-    if FileExists(DBPath) then
-      RenameFile(DBPath, BackupPath);
-    try
-      InStream := TFileStream.Create(dlgRestore.FileName, fmOpenRead or fmShareDenyWrite);
-      try
-        OutStream := TFileStream.Create(DBPath, fmCreate);
-        try
-          OutStream.CopyFrom(InStream, 0);
-        finally
-          OutStream.Free;
-        end;
-      finally
-        InStream.Free;
-      end;
-      MessageDlg('Restore Successful', 'Data has been successfully restored.', mtInformation, [mbOK], 0);
-    except
-      on E: Exception do
-      begin
-        if FileExists(BackupPath) then
-          RenameFile(BackupPath, DBPath);
-        MessageDlg('Restore Error', 'Failed to restore the database file: ' + E.Message, mtError, [mbOK], 0);
-      end;
-    end;
-    FServiceDB := TServiceDatabase.Create;
-    FResolver := TServiceResolve.Create(FServiceDB.DB);
-    GlobalEngine.OnKeyLog := @FResolver.OnKeyLogResolve;
-    GlobalEngine.OnTrigger := @FResolver.OnSnippetTriggered;
-    FResolver.RebuildIndex;
-    LoadCollections;
-    RefreshTriggerList;
-    GlobalEngine.Start;
-    DumpMemory;
-  end;
-end;
-
-procedure TfrmAppBase.mniHelpAboutClick(Sender: TObject);
-begin
-  TfrmDialogAbout.Execute(0);
-  DumpMemory;
-end;
-
-procedure TfrmAppBase.mniHelpGuideClick(Sender: TObject);
-begin
-  TfrmDialogAbout.Execute(1);
-  DumpMemory;
-end;
-
-procedure TfrmAppBase.mniHelpLicenseClick(Sender: TObject);
-begin
-  TfrmDialogAbout.Execute(2);
-  DumpMemory;
-end;
-
-procedure TfrmAppBase.mniHelpSponsorClick(Sender: TObject);
-begin
-  OpenURL(DEV_SPONSOR);
-end;
-
-procedure TfrmAppBase.mniHelpThirdPartyClick(Sender: TObject);
-begin
-  TfrmDialogAbout.Execute(3);
-  DumpMemory;
-end;
-
-procedure TfrmAppBase.mniHelpWebsiteClick(Sender: TObject);
-begin
-  OpenURL(APP_URL);
-end;
-
-procedure TfrmAppBase.mniMemoPreviewCopyClick(Sender: TObject);
-var
-  TargetMemo: TMemo;
-begin
-  if (pmnPreview.PopupComponent is TMemo) then
-  begin
-    TargetMemo := TMemo(pmnPreview.PopupComponent);
-    if TargetMemo.CanFocus then TargetMemo.SetFocus;
-    TargetMemo.CopyToClipboard;
-  end;
-end;
-
-procedure TfrmAppBase.mniMemoPreviewReadingOrderClick(Sender: TObject);
-var
-  TargetMemo: TMemo;
-begin
-  if (pmnPreview.PopupComponent is TMemo) then
-  begin
-    TargetMemo := TMemo(pmnPreview.PopupComponent);
-    if TargetMemo.BidiMode = bdRightToLeft then
-      TargetMemo.BidiMode := bdLeftToRight
-    else
-      TargetMemo.BidiMode := bdRightToLeft;
-  end;
-end;
-
-procedure TfrmAppBase.mniMemoPreviewSelectAllClick(Sender: TObject);
-var
-  TargetMemo: TMemo;
-begin
-  if (pmnPreview.PopupComponent is TMemo) then
-  begin
-    TargetMemo := TMemo(pmnPreview.PopupComponent);
-    if TargetMemo.CanFocus then TargetMemo.SetFocus;
-    TargetMemo.SelectAll;
-  end;
-end;
-
-{$IFDEF WINDOWS}
-procedure TfrmAppBase.WMPowerBroadcast(var Msg: TMessage);
-begin
-  if Msg.wParam = PBT_APMSUSPEND then
-  begin
-    if Assigned(GlobalEngine) then GlobalEngine.Stop;
-  end
-  else if (Msg.wParam = PBT_APMRESUMEAUTOMATIC) or (Msg.wParam = PBT_APMRESUMESUSPEND) then
-  begin
-    if Assigned(GlobalEngine) then GlobalEngine.Start;
-  end;
-  Msg.Result := 1;
-end;
-
-procedure TfrmAppBase.WMSessionChange(var Msg: TMessage);
-begin
-  if Msg.wParam = WTS_SESSION_UNLOCK then
-  begin
-    if Assigned(GlobalEngine) then
-    begin
-      GlobalEngine.Stop;
-      GlobalEngine.Start;
-    end;
-  end;
-  Msg.Result := 0;
-end;
-{$ENDIF}
-
-procedure TfrmAppBase.WMHotKey(var Msg: TMessage);
-var
-  SelectedID: String;
-  {$IFDEF WINDOWS}
-  TargetWnd: HWND;
-  TargetThreadID, TargetProcessID: DWORD;
-  TargetProcessHandle: THandle;
-  GUIInfo: TGUITHREADINFO;
-  WaitCount: Integer;
-  {$ENDIF}
-begin
-  if not GlobalEngine.Active then Exit;
-  if (Msg.wParam = 1) or (Msg.wParam = 2) then
-  begin
-    try
-      {$IFDEF WINDOWS}
-      TargetWnd := GetForegroundWindow();
-      {$ENDIF}
-      if Assigned(FServiceDB) then
-        SelectedID := TfrmDialogSearchQuick.Execute(FServiceDB.DB)
-      else
-        SelectedID := '';
-      if SelectedID <> '' then
-      begin
-        {$IFDEF WINDOWS}
-        if TargetWnd <> 0 then
-        begin
-          SetForegroundWindow(TargetWnd);
-          TargetThreadID := GetWindowThreadProcessId(TargetWnd, @TargetProcessID);
-          TargetProcessHandle := OpenProcess(PROCESS_QUERY_INFORMATION, False, TargetProcessID);
-          if TargetProcessHandle <> 0 then
-          begin
-            WaitForInputIdle(TargetProcessHandle, 1000);
-            CloseHandle(TargetProcessHandle);
-          end;
-          GUIInfo.cbSize := SizeOf(TGUITHREADINFO);
-          WaitCount := 0;
-          while WaitCount < 250 do
-          begin
-            if GetForegroundWindow() = TargetWnd then
-            begin
-              if GetGUIThreadInfo(TargetThreadID, @GUIInfo) and (GUIInfo.hwndFocus <> 0) then Break;
-            end;
-            Sleep(1);
-            Inc(WaitCount);
-          end;
-          Sleep(100);
-        end;
-        {$ENDIF}
-        GlobalEngine.ExecuteSubstitution('', SelectedID);
-      end;
-    finally
-      DumpMemory;
-    end;
-  end;
-end;
-
-procedure TfrmAppBase.WMRestore(var Msg: TMessage);
-begin
-  if Msg.Msg = 0 then;
-  mniTrayShowClick(nil);
-end;
-
-procedure TfrmAppBase.SelectCollectionByID(const ACollectionID: String);
-var
+  HasAllNode: Boolean;
   Node: PVirtualNode;
   Data: PCollectionData;
+  SelCount: Integer;
 begin
-  Node := vstCollection.GetFirst;
+  HasAllNode := False;
+  SelCount := vstCollection.SelectedCount;
+  Node := vstCollection.GetFirstSelected;
   while Assigned(Node) do
   begin
     Data := vstCollection.GetNodeData(Node);
-    if Data^.ID = ACollectionID then
-    begin
-      vstCollection.ClearSelection;
-      vstCollection.Selected[Node] := True;
-      vstCollection.FocusedNode := Node;
-      vstCollection.ScrollIntoView(Node, True);
-      Break;
-    end;
-    Node := vstCollection.GetNext(Node);
+    if Data^.ID = COLLECTION_ALL_ID then HasAllNode := True;
+    Node := vstCollection.GetNextSelected(Node);
   end;
-end;
-
-procedure TfrmAppBase.WMQuit(var Msg: TMessage);
-begin
-  if Msg.Msg = 0 then;
-  FRealExit := True;
-  Close;
-end;
-
-procedure TfrmAppBase.SelectTriggerByID(const ATriggerID: String);
-var
-  Node: PVirtualNode;
-  Data: PTriggerData;
-begin
-  Node := vstTrigger.GetFirst;
-  while Assigned(Node) do
+  mniTreeCollectionRename.Enabled := (SelCount = 1) and not HasAllNode;
+  mniTreeCollectionDelete.Enabled := (SelCount > 0) and not HasAllNode;
+  mniTreeCollectionExport.Enabled := (SelCount > 0);
+  if SelCount > 1 then
   begin
-    Data := vstTrigger.GetNodeData(Node);
-    if Data^.ID = ATriggerID then
-    begin
-      vstTrigger.ClearSelection;
-      vstTrigger.Selected[Node] := True;
-      vstTrigger.FocusedNode := Node;
-      vstTrigger.ScrollIntoView(Node, True);
-      Break;
-    end;
-    Node := vstTrigger.GetNext(Node);
+    mniTreeCollectionDelete.Caption := 'Delete Collections';
+    mniTreeCollectionExport.Caption := 'Export Collections';
+  end
+  else
+  begin
+    mniTreeCollectionDelete.Caption := 'Delete Collection';
+    mniTreeCollectionExport.Caption := 'Export Collection';
   end;
 end;
 
-procedure TfrmAppBase.DumpMemory;
-begin
-  if Assigned(FServiceDB) then FServiceDB.DB.Exec('PRAGMA shrink_memory;');
-  {$IFDEF WINDOWS}
-  SetProcessWorkingSetSize(GetCurrentProcess(), PtrUInt(-1), PtrUInt(-1));
-  {$ENDIF}
-end;
-
-procedure TfrmAppBase.ProcessTriggerRow(const Row: array of String);
+procedure TfrmAppBase.btnTriggerAddClick(Sender: TObject);
 var
-  Node: PVirtualNode;
-  Data: PTriggerData;
-  DT: TDateTime;
-begin
-  if Length(Row) = 0 then;
-  Node := vstTrigger.AddChild(nil);
-  Data := vstTrigger.GetNodeData(Node);
-  Data^.ID := Row[0];
-  Data^.Name := Row[1];
-  Data^.Trigger := Row[2];
-  Data^.CollectionName := Row[3];
-  if (Row[4] <> '') and TryStrToDateTime(Row[4], DT, FFS) then
-    Data^.LastUsed := FormatDateTime('yyyy-mm-dd hh:nn:ss', UniversalTimeToLocal(DT))
-  else
-    Data^.LastUsed := Row[4];
-end;
-
-procedure TfrmAppBase.ProcessCollectionRow(const Row: array of String);
-var
-  Node: PVirtualNode;
+  N, T, D, C: String;
+  CurrentCollID, TargetCollID: String;
   Data: PCollectionData;
+  NewID: String;
 begin
-  if Length(Row) = 0 then;
-  Node := vstCollection.AddChild(nil);
-  Data := vstCollection.GetNodeData(Node);
-  Data^.ID := Row[0];
-  Data^.Name := Row[1];
-  Data^.Count := StrToIntDef(Row[2], 0);
+  CurrentCollID := COLLECTION_ALL_ID;
+  if vstCollection.GetFirstSelected <> nil then
+  begin
+    Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
+    CurrentCollID := Data^.ID;
+  end;
+  N := ''; T := ''; D := ''; C := '';
+  if CurrentCollID <> COLLECTION_ALL_ID then
+    C := CurrentCollID;
+  if TfrmDialogDefinition.Execute(FServiceDB.DB, 'New Trigger', '', N, T, D, C) then
+  begin
+    NewID := NewMonoLexID;
+    FServiceDB.DB.Exec('INSERT INTO definitions (id, collection_id, name, trigger_word, definition_text) VALUES (' + QuotedStr(NewID) + ',' + QuotedStr(C) + ',' + QuotedStr(N) + ',' + QuotedStr(T) + ',' + QuotedStr(D) + ')');
+    if CurrentCollID = COLLECTION_ALL_ID then
+      TargetCollID := COLLECTION_ALL_ID
+    else
+      TargetCollID := C;
+    LoadCollections;
+    SelectCollectionByID(TargetCollID);
+    SelectTriggerByID(NewID);
+    GlobalEngine.Stop;
+    FResolver.RebuildIndex;
+    GlobalEngine.BufferReset;
+    GlobalEngine.Start;
+  end;
 end;
 
-procedure TfrmAppBase.RefreshTriggerList;
+procedure TfrmAppBase.btnTriggerEditClick(Sender: TObject);
 var
-  SQL, SVal, SearchFilter: String;
+  N, T, D, C, ID: String;
+  Res: TDBResult;
+  Data: PTriggerData;
+  CurrentCollID, TargetCollID: String;
   CollData: PCollectionData;
-  SelectedCollID: String;
-  SortField, SortOrder: String;
 begin
-  SelectedCollID := COLLECTION_ALL_ID;
+  if vstTrigger.SelectedCount <> 1 then
+  begin
+    MessageDlg('Selection Error', 'Please select a trigger to edit.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+  CurrentCollID := COLLECTION_ALL_ID;
   if vstCollection.GetFirstSelected <> nil then
   begin
     CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
-    SelectedCollID := CollData^.ID;
+    CurrentCollID := CollData^.ID;
   end;
-  if Trim(edtSearch.Text) <> '' then
+  Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
+  ID := Data^.ID;
+  Res := FServiceDB.DB.Query('SELECT name, trigger_word, definition_text, collection_id FROM definitions WHERE id = ' + QuotedStr(ID));
+  if Length(Res) = 0 then Exit;
+  N := Res[0][0];
+  T := Res[0][1];
+  D := Res[0][2];
+  C := Res[0][3];
+  if TfrmDialogDefinition.Execute(FServiceDB.DB, 'Edit Trigger', ID, N, T, D, C) then
   begin
-    SVal := QuotedStr('%' + Trim(edtSearch.Text) + '%');
-    SearchFilter := ' AND (d.name LIKE ' + SVal + ' OR d.trigger_word LIKE ' + SVal + ' OR d.definition_text LIKE ' + SVal + ')';
-  end
+    FServiceDB.DB.Exec('UPDATE definitions SET collection_id=' + QuotedStr(C) + ', name=' + QuotedStr(N) + ', trigger_word=' + QuotedStr(T) + ', definition_text=' + QuotedStr(D) + ' WHERE id=' + QuotedStr(ID));
+    if CurrentCollID = COLLECTION_ALL_ID then
+      TargetCollID := COLLECTION_ALL_ID
+    else
+      TargetCollID := C;
+    LoadCollections;
+    SelectCollectionByID(TargetCollID);
+    SelectTriggerByID(ID);
+    GlobalEngine.Stop;
+    FResolver.RebuildIndex;
+    GlobalEngine.BufferReset;
+    GlobalEngine.Start;
+  end;
+end;
+
+procedure TfrmAppBase.btnTriggerDeleteClick(Sender: TObject);
+var
+  Data: PTriggerData;
+  Node: PVirtualNode;
+  Count: Integer;
+  Msg: String;
+  CurrentCollID: String;
+  CollData: PCollectionData;
+begin
+  Count := vstTrigger.SelectedCount;
+  if Count = 0 then
+  begin
+    MessageDlg('Selection Error', 'Please select at least one trigger to delete.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+  CurrentCollID := COLLECTION_ALL_ID;
+  if vstCollection.GetFirstSelected <> nil then
+  begin
+    CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
+    CurrentCollID := CollData^.ID;
+  end;
+  if Count = 1 then
+    Msg := 'Are you sure you wish to delete this trigger?'
   else
-    SearchFilter := '';
-  case vstTrigger.Header.SortColumn of
-    1: SortField := 'd.trigger_word';
-    2: SortField := 'c.name';
-    3: SortField := 'd.last_triggered';
-    else SortField := 'd.name';
+    Msg := Format('Are you sure you wish to delete the %d selected triggers?', [Count]);
+  if MessageDlg('Delete Trigger', Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    FServiceDB.DB.Exec('BEGIN TRANSACTION;');
+    try
+      Node := vstTrigger.GetFirstSelected;
+      while Assigned(Node) do
+      begin
+        Data := vstTrigger.GetNodeData(Node);
+        FServiceDB.DB.Exec('DELETE FROM definitions WHERE id = ' + QuotedStr(Data^.ID));
+        Node := vstTrigger.GetNextSelected(Node);
+      end;
+      FServiceDB.DB.Exec('COMMIT;');
+    except
+      FServiceDB.DB.Exec('ROLLBACK;');
+      raise;
+    end;
+    LoadCollections;
+    SelectCollectionByID(CurrentCollID);
+    GlobalEngine.Stop;
+    FResolver.RebuildIndex;
+    GlobalEngine.BufferReset;
+    GlobalEngine.Start;
   end;
-  if vstTrigger.Header.SortDirection = sdAscending then SortOrder := ' ASC' else SortOrder := ' DESC';
-  SQL := 'SELECT d.id, d.name, d.trigger_word, c.name, d.last_triggered FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id WHERE 1=1' + SearchFilter;
-  if SelectedCollID <> COLLECTION_ALL_ID then
-    SQL := SQL + ' AND d.collection_id = ' + QuotedStr(SelectedCollID);
-  SQL := SQL + ' ORDER BY ' + SortField + SortOrder;
-  vstTrigger.BeginUpdate;
-  try
-    vstTrigger.Clear;
-    FServiceDB.DB.QueryProc(SQL, @ProcessTriggerRow);
-  finally
-    vstTrigger.EndUpdate;
-  end;
-  IdleTimer.Enabled := False;
-  IdleTimer.Enabled := True;
-end;
-
-procedure TfrmAppBase.UpdateAutoStartStatus;
-begin
-  cbxAutoStart.OnChange := nil;
-  cbxAutoStart.Checked := TServiceSettings.IsAutoStartEnabled;
-  if cbxAutoStart.Checked then lblAutoStart.Caption := 'Enabled on system start-up'
-  else lblAutoStart.Caption := 'Disabled on system start-up';
-  cbxAutoStart.OnChange := @cbxAutoStartChange;
-end;
-
-procedure TfrmAppBase.cbxAutoStartChange(Sender: TObject);
-begin
-  TServiceSettings.SetAutoStart(cbxAutoStart.Checked);
-  if cbxAutoStart.Checked then lblAutoStart.Caption := 'Enabled on system start-up'
-  else lblAutoStart.Caption := 'Disabled on system start-up';
 end;
 
 procedure TfrmAppBase.btnTriggerMoveClick(Sender: TObject);
@@ -923,97 +943,6 @@ begin
         FinalRouteID := TargetCollID;
       LoadCollections;
       SelectCollectionByID(FinalRouteID);
-    end;
-  end;
-end;
-
-procedure TfrmAppBase.btnRefreshClick(Sender: TObject);
-begin
-  RefreshTriggerList;
-  UpdatePreview;
-end;
-
-procedure TfrmAppBase.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-begin
-  if not FRealExit then begin CanClose := False; Hide; DumpMemory; end else CanClose := True;
-end;
-
-procedure TfrmAppBase.FormShow(Sender: TObject);
-begin
-  {$IFDEF WINDOWS}
-  BringWindowToTop(Handle);
-  SetForegroundWindow(Handle);
-  {$ENDIF}
-  Application.BringToFront;
-end;
-
-procedure TfrmAppBase.FormWindowStateChange(Sender: TObject);
-begin 
-  if WindowState = wsMinimized
-  then DumpMemory; 
-end;
-
-procedure TfrmAppBase.TrayIconDblClick(Sender: TObject);
-begin
-  mniTrayShowClick(nil);
-end;
-
-procedure TfrmAppBase.mniTrayShowClick(Sender: TObject);
-begin
-  Application.ShowMainForm := True;
-  if WindowState = wsMinimized then
-    WindowState := wsNormal;
-  WindowState := wsMaximized;
-  Show;
-  {$IFDEF WINDOWS}
-  SetForegroundWindow(Handle);
-  BringWindowToTop(Handle);
-  {$ENDIF}
-  Application.BringToFront;
-end;
-
-procedure TfrmAppBase.mniTriggerExportClick(Sender: TObject);
-var
-  Res: TDBResult;
-  i: Integer;
-  JSONArr: TJSONArray;
-  JSONObj: TJSONObject;
-  FileStream: TFileStream;
-  JSONStr: String;
-begin
-  dlgExport.Title := 'Export Triggers';
-  dlgExport.FileName := 'Pasted_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
-  if dlgExport.Execute then
-  begin
-    JSONArr := TJSONArray.Create;
-    try
-      Res := FServiceDB.DB.Query('SELECT d.name, d.trigger_word, d.definition_text, c.name FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id');
-      for i := 0 to High(Res) do
-      begin
-        JSONObj := TJSONObject.Create;
-        JSONObj.Add('name', Res[i][0]);
-        JSONObj.Add('trigger', Res[i][1]);
-        JSONObj.Add('definition', Res[i][2]);
-        JSONObj.Add('collection', Res[i][3]);
-        JSONArr.Add(JSONObj);
-      end;
-      JSONStr := JSONArr.FormatJSON();
-      try
-        FileStream := TFileStream.Create(dlgExport.FileName, fmCreate or fmShareExclusive);
-        try
-          FileStream.WriteBuffer(Pointer(JSONStr)^, Length(JSONStr));
-        finally
-          FileStream.Free;
-        end;
-        MessageDlg('Export Successful', Format('Successfully exported %d triggers.', [Length(Res)]), mtInformation, [mbOK], 0);
-      except
-        on E: EFCreateError do
-          MessageDlg('Export Error', 'Could not save the export file. Please verify directory permissions.', mtError, [mbOK], 0);
-        on E: Exception do
-          MessageDlg('Export Error', 'An unexpected error occurred during export: ' + E.Message, mtError, [mbOK], 0);
-      end;
-    finally
-      JSONArr.Free;
     end;
   end;
 end;
@@ -1153,47 +1082,49 @@ begin
   end;
 end;
 
-procedure TfrmAppBase.pmnCollectionPopup(Sender: TObject);
+procedure TfrmAppBase.mniTriggerExportClick(Sender: TObject);
 var
-  HasAllNode: Boolean;
-  Node: PVirtualNode;
-  Data: PCollectionData;
-  SelCount: Integer;
+  Res: TDBResult;
+  i: Integer;
+  JSONArr: TJSONArray;
+  JSONObj: TJSONObject;
+  FileStream: TFileStream;
+  JSONStr: String;
 begin
-  HasAllNode := False;
-  SelCount := vstCollection.SelectedCount;
-  Node := vstCollection.GetFirstSelected;
-  while Assigned(Node) do
+  dlgExport.Title := 'Export Triggers';
+  dlgExport.FileName := 'Pasted_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
+  if dlgExport.Execute then
   begin
-    Data := vstCollection.GetNodeData(Node);
-    if Data^.ID = COLLECTION_ALL_ID then HasAllNode := True;
-    Node := vstCollection.GetNextSelected(Node);
-  end;
-  mniTreeCollectionRename.Enabled := (SelCount = 1) and not HasAllNode;
-  mniTreeCollectionDelete.Enabled := (SelCount > 0) and not HasAllNode;
-  mniTreeCollectionExport.Enabled := (SelCount > 0);
-  if SelCount > 1 then
-  begin
-    mniTreeCollectionDelete.Caption := 'Delete Collections';
-    mniTreeCollectionExport.Caption := 'Export Collections';
-  end
-  else
-  begin
-    mniTreeCollectionDelete.Caption := 'Delete Collection';
-    mniTreeCollectionExport.Caption := 'Export Collection';
-  end;
-end;
-
-procedure TfrmAppBase.pmnPreviewPopup(Sender: TObject);
-var
-  TargetMemo: TMemo;
-begin
-  if (pmnPreview.PopupComponent is TMemo) then
-  begin
-    TargetMemo := TMemo(pmnPreview.PopupComponent);
-    mniMemoPreviewReadingOrder.Checked := TargetMemo.BidiMode = bdRightToLeft;
-    mniMemoPreviewCopy.Enabled := TargetMemo.SelLength > 0;
-    mniMemoPreviewSelectAll.Enabled := Length(TargetMemo.Text) > 0;
+    JSONArr := TJSONArray.Create;
+    try
+      Res := FServiceDB.DB.Query('SELECT d.name, d.trigger_word, d.definition_text, c.name FROM definitions d LEFT JOIN collections c ON d.collection_id = c.id');
+      for i := 0 to High(Res) do
+      begin
+        JSONObj := TJSONObject.Create;
+        JSONObj.Add('name', Res[i][0]);
+        JSONObj.Add('trigger', Res[i][1]);
+        JSONObj.Add('definition', Res[i][2]);
+        JSONObj.Add('collection', Res[i][3]);
+        JSONArr.Add(JSONObj);
+      end;
+      JSONStr := JSONArr.FormatJSON();
+      try
+        FileStream := TFileStream.Create(dlgExport.FileName, fmCreate or fmShareExclusive);
+        try
+          FileStream.WriteBuffer(Pointer(JSONStr)^, Length(JSONStr));
+        finally
+          FileStream.Free;
+        end;
+        MessageDlg('Export Successful', Format('Successfully exported %d triggers.', [Length(Res)]), mtInformation, [mbOK], 0);
+      except
+        on E: EFCreateError do
+          MessageDlg('Export Error', 'Could not save the export file. Please verify directory permissions.', mtError, [mbOK], 0);
+        on E: Exception do
+          MessageDlg('Export Error', 'An unexpected error occurred during export: ' + E.Message, mtError, [mbOK], 0);
+      end;
+    finally
+      JSONArr.Free;
+    end;
   end;
 end;
 
@@ -1216,16 +1147,201 @@ begin
   end;
 end;
 
-procedure TfrmAppBase.SearchTimerTimer(Sender: TObject);
+procedure TfrmAppBase.memPreviewCaretHide(Sender: TObject);
 begin
-  SearchTimer.Enabled := False;
-  RefreshTriggerList;
+  HideCaret(TMemo(Sender).Handle);
 end;
 
-procedure TfrmAppBase.mniTrayExitClick(Sender: TObject);
+procedure TfrmAppBase.pmnPreviewPopup(Sender: TObject);
+var
+  TargetMemo: TMemo;
 begin
-  FRealExit := True;
-  Application.Terminate;
+  if (pmnPreview.PopupComponent is TMemo) then
+  begin
+    TargetMemo := TMemo(pmnPreview.PopupComponent);
+    mniMemoPreviewReadingOrder.Checked := TargetMemo.BidiMode = bdRightToLeft;
+    mniMemoPreviewCopy.Enabled := TargetMemo.SelLength > 0;
+    mniMemoPreviewSelectAll.Enabled := Length(TargetMemo.Text) > 0;
+  end;
+end;
+
+procedure TfrmAppBase.mniMemoPreviewCopyClick(Sender: TObject);
+var
+  TargetMemo: TMemo;
+begin
+  if (pmnPreview.PopupComponent is TMemo) then
+  begin
+    TargetMemo := TMemo(pmnPreview.PopupComponent);
+    if TargetMemo.CanFocus then TargetMemo.SetFocus;
+    TargetMemo.CopyToClipboard;
+  end;
+end;
+
+procedure TfrmAppBase.mniMemoPreviewSelectAllClick(Sender: TObject);
+var
+  TargetMemo: TMemo;
+begin
+  if (pmnPreview.PopupComponent is TMemo) then
+  begin
+    TargetMemo := TMemo(pmnPreview.PopupComponent);
+    if TargetMemo.CanFocus then TargetMemo.SetFocus;
+    TargetMemo.SelectAll;
+  end;
+end;
+
+procedure TfrmAppBase.mniMemoPreviewReadingOrderClick(Sender: TObject);
+var
+  TargetMemo: TMemo;
+begin
+  if (pmnPreview.PopupComponent is TMemo) then
+  begin
+    TargetMemo := TMemo(pmnPreview.PopupComponent);
+    if TargetMemo.BidiMode = bdRightToLeft then
+      TargetMemo.BidiMode := bdLeftToRight
+    else
+      TargetMemo.BidiMode := bdRightToLeft;
+  end;
+end;
+
+procedure TfrmAppBase.mniControlPauseResumeClick(Sender: TObject);
+begin
+  if GlobalEngine.Active then
+  begin
+    GlobalEngine.Stop;
+    mniControlPauseResume.Caption := 'Resume Activity';
+    mniControlPauseResume.ImageIndex := 11;
+    mniTrayPauseResume.Caption := 'Resume Activity';
+    mniTrayPauseResume.ImageIndex := 11;
+    lblStatus.Caption := 'Status: Paused';
+  end
+  else
+  begin
+    GlobalEngine.Start;
+    mniControlPauseResume.Caption := 'Pause Activity';
+    mniControlPauseResume.ImageIndex := 10;
+    mniTrayPauseResume.Caption := 'Pause Activity';
+    mniTrayPauseResume.ImageIndex := 10;
+    lblStatus.Caption := 'Status: Active';
+  end;
+end;
+
+procedure TfrmAppBase.mniDataBackupClick(Sender: TObject);
+var
+  TestStream: TFileStream;
+begin
+  dlgBackup.Title := 'Back Up Database';
+  dlgBackup.FileName := 'Pasted_Backup_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.db';
+  if dlgBackup.Execute then
+  begin
+    try
+      TestStream := TFileStream.Create(dlgBackup.FileName, fmCreate or fmShareExclusive);
+      TestStream.Free;
+      SysUtils.DeleteFile(dlgBackup.FileName);
+      FServiceDB.DB.Exec('VACUUM INTO ' + QuotedStr(dlgBackup.FileName) + ';');
+      if FileExists(dlgBackup.FileName) then
+        MessageDlg('Backup Successful', 'Data has been successfully backed up.', mtInformation, [mbOK], 0)
+      else
+        MessageDlg('Backup Error', 'Pasted could not write to the destination.', mtError, [mbOK], 0);
+    except
+      on E: EFCreateError do
+        MessageDlg('Backup Error', 'Could not create the backup. Please verify directory permissions.', mtError, [mbOK], 0);
+      on E: Exception do
+        MessageDlg('Backup Error', 'An unexpected error occurred during backup: ' + E.Message, mtError, [mbOK], 0);
+    end;
+  end;
+end;
+
+procedure TfrmAppBase.mniDataRestoreClick(Sender: TObject);
+var
+  DBPath: String;
+  BackupPath: String;
+  InStream, OutStream: TFileStream;
+  TempDB: TStaticSQLite;
+  Res: TDBResult;
+begin
+  if MessageDlg('Confirm Restore', 'Restoring will overwrite the current data. Do you wish to proceed?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+  dlgRestore.Title := 'Restore Database';
+  if dlgRestore.Execute then
+  begin
+    DBPath := IncludeTrailingPathDelimiter(GetAppConfigDir(False)) + 'Pasted.db';
+    if SameText(dlgRestore.FileName, DBPath) then
+    begin
+      MessageDlg('Restore Error', 'You cannot restore using the currently active database file.', mtError, [mbOK], 0);
+      Exit;
+    end;
+    try
+      TempDB := TStaticSQLite.Create(dlgRestore.FileName);
+      try
+        Res := TempDB.Query('SELECT COUNT(*) FROM collections');
+        if Length(Res) = 0 then
+        begin
+          MessageDlg('Restore Error', 'The selected file is not a valid Pasted database or is corrupted.', mtError, [mbOK], 0);
+          Exit;
+        end;
+      finally
+        TempDB.Free;
+      end;
+    except
+      MessageDlg('Restore Error', 'Could not open the selected file. It may be corrupted or inaccessible.', mtError, [mbOK], 0);
+      Exit;
+    end;
+    GlobalEngine.Stop;
+    if Assigned(FResolver) then FreeAndNil(FResolver);
+    if Assigned(FServiceDB) then FreeAndNil(FServiceDB);
+    BackupPath := DBPath + '.bak_' + FormatDateTime('yyyymmdd_hhnnss', Now);
+    if FileExists(DBPath) then
+      RenameFile(DBPath, BackupPath);
+    try
+      InStream := TFileStream.Create(dlgRestore.FileName, fmOpenRead or fmShareDenyWrite);
+      try
+        OutStream := TFileStream.Create(DBPath, fmCreate);
+        try
+          OutStream.CopyFrom(InStream, 0);
+        finally
+          OutStream.Free;
+        end;
+      finally
+        InStream.Free;
+      end;
+      MessageDlg('Restore Successful', 'Data has been successfully restored.', mtInformation, [mbOK], 0);
+    except
+      on E: Exception do
+      begin
+        if FileExists(BackupPath) then
+          RenameFile(BackupPath, DBPath);
+        MessageDlg('Restore Error', 'Failed to restore the database file: ' + E.Message, mtError, [mbOK], 0);
+      end;
+    end;
+    FServiceDB := TServiceDatabase.Create;
+    FResolver := TServiceResolve.Create(FServiceDB.DB);
+    GlobalEngine.OnKeyLog := @FResolver.OnKeyLogResolve;
+    GlobalEngine.OnTrigger := @FResolver.OnSnippetTriggered;
+    FResolver.RebuildIndex;
+    LoadCollections;
+    RefreshTriggerList;
+    GlobalEngine.Start;
+    DumpMemory;
+  end;
+end;
+
+procedure TfrmAppBase.TrayIconDblClick(Sender: TObject);
+begin
+  mniTrayShowClick(nil);
+end;
+
+procedure TfrmAppBase.mniTrayShowClick(Sender: TObject);
+begin
+  Application.ShowMainForm := True;
+  if WindowState = wsMinimized then
+    WindowState := wsNormal;
+  WindowState := wsMaximized;
+  Show;
+  {$IFDEF WINDOWS}
+  SetForegroundWindow(Handle);
+  BringWindowToTop(Handle);
+  {$ENDIF}
+  Application.BringToFront;
 end;
 
 procedure TfrmAppBase.mniTrayAboutClick(Sender: TObject);
@@ -1234,326 +1350,210 @@ begin
   DumpMemory;
 end;
 
-procedure TfrmAppBase.LoadCollections;
-var 
-  Res: TDBResult; 
-  Node: PVirtualNode; 
-  Data: PCollectionData; 
-  TotalCount: Integer;
+procedure TfrmAppBase.mniHelpAboutClick(Sender: TObject);
 begin
-  vstCollection.BeginUpdate;
-  try
-    vstCollection.Clear;
-    TotalCount := 0;
-    Res := FServiceDB.DB.Query('SELECT COUNT(*) FROM definitions');
-    if Length(Res) > 0 then TotalCount := StrToIntDef(Res[0][0], 0);
-    Node := vstCollection.AddChild(nil);
-    Data := vstCollection.GetNodeData(Node);
-    Data^.ID := COLLECTION_ALL_ID;
-    Data^.Name := 'All';
-    Data^.Count := TotalCount;
-    FServiceDB.DB.QueryProc('SELECT id, name, (SELECT COUNT(*) FROM definitions d WHERE d.collection_id = c.id) FROM collections c', @ProcessCollectionRow);
-  finally
-    vstCollection.EndUpdate;
-    vstCollection.SortTree(vstCollection.Header.SortColumn, vstCollection.Header.SortDirection);
-  end;
+  TfrmDialogAbout.Execute(0);
+  DumpMemory;
 end;
 
-procedure TfrmAppBase.vstCollectionGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-var Data: PCollectionData; 
-begin 
-  if TextType = ttNormal then;
-  Data := Sender.GetNodeData(Node); 
-  if Column = 0 then CellText := Data^.Name else CellText := IntToStr(Data^.Count); 
-end;
-
-procedure TfrmAppBase.vstCollectionFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-var Data: PCollectionData;
-begin 
-  Data := Sender.GetNodeData(Node);
-  Finalize(Data^);
-end;
-
-procedure TfrmAppBase.vstCollectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode); 
-begin 
-  if Assigned(Node) then;
-  RefreshTriggerList; 
-end;
-
-procedure TfrmAppBase.vstCollectionHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+procedure TfrmAppBase.mniHelpGuideClick(Sender: TObject);
 begin
-  if Sender.SortColumn = HitInfo.Column then
-  begin
-    if Sender.SortDirection = sdAscending then Sender.SortDirection := sdDescending
-    else Sender.SortDirection := sdAscending;
-  end
-  else
-  begin
-    Sender.SortColumn := HitInfo.Column;
-    Sender.SortDirection := sdAscending;
-  end;
-  Sender.Treeview.SortTree(HitInfo.Column, Sender.SortDirection);
+  TfrmDialogAbout.Execute(1);
+  DumpMemory;
 end;
 
-procedure TfrmAppBase.vstCollectionCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-var 
-  Data1, Data2: PCollectionData;
-  DirectionMod: Integer;
+procedure TfrmAppBase.mniHelpLicenseClick(Sender: TObject);
 begin
-  Data1 := Sender.GetNodeData(Node1);
-  Data2 := Sender.GetNodeData(Node2);
-  if TLazVirtualStringTree(Sender).Header.SortDirection = sdAscending then DirectionMod := 1 else DirectionMod := -1;
-  if Data1^.ID = COLLECTION_ALL_ID then begin Result := -1 * DirectionMod; Exit; end;
-  if Data2^.ID = COLLECTION_ALL_ID then begin Result := 1 * DirectionMod; Exit; end;
-  case Column of
-    0: Result := CompareText(Data1^.Name, Data2^.Name);
-    1: 
-    begin
-      if Data1^.Count > Data2^.Count then Result := 1
-      else if Data1^.Count < Data2^.Count then Result := -1
-      else Result := 0;
-    end;
-  end;
+  TfrmDialogAbout.Execute(2);
+  DumpMemory;
 end;
 
-procedure TfrmAppBase.vstTriggerGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-var Data: PTriggerData;
+procedure TfrmAppBase.mniHelpThirdPartyClick(Sender: TObject);
 begin
-  if TextType = ttNormal then;
-  Data := Sender.GetNodeData(Node);
-  case Column of
-    0: CellText := Data^.Name;
-    1: CellText := Data^.Trigger;
-    2: CellText := Data^.CollectionName;
-    3: CellText := Data^.LastUsed;
-  end;
+  TfrmDialogAbout.Execute(3);
+  DumpMemory;
 end;
 
-procedure TfrmAppBase.vstTriggerFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
-var Data: PTriggerData;
+procedure TfrmAppBase.mniHelpWebsiteClick(Sender: TObject);
 begin
-  Data := Sender.GetNodeData(Node);
-  Finalize(Data^);
+  OpenURL(APP_URL);
 end;
 
-procedure TfrmAppBase.vstTriggerChange(Sender: TBaseVirtualTree; Node: PVirtualNode); 
-begin 
-  if Assigned(Node) then;
-  UpdatePreview; 
-end;
-
-procedure TfrmAppBase.vstTriggerHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+procedure TfrmAppBase.mniHelpSponsorClick(Sender: TObject);
 begin
-  if Sender.SortColumn = HitInfo.Column then
-  begin
-    if Sender.SortDirection = sdAscending then Sender.SortDirection := sdDescending
-    else Sender.SortDirection := sdAscending;
-  end
-  else
-  begin
-    Sender.SortColumn := HitInfo.Column;
-    Sender.SortDirection := sdAscending;
-  end;
-  RefreshTriggerList;
+  OpenURL(DEV_SPONSOR);
 end;
 
-procedure TfrmAppBase.vstTriggerCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-var Data1, Data2: PTriggerData;
+procedure TfrmAppBase.mniTrayExitClick(Sender: TObject);
 begin
-  Data1 := Sender.GetNodeData(Node1);
-  Data2 := Sender.GetNodeData(Node2);
-  case Column of
-    0: Result := CompareText(Data1^.Name, Data2^.Name);
-    1: Result := CompareText(Data1^.Trigger, Data2^.Trigger);
-    2: Result := CompareText(Data1^.CollectionName, Data2^.CollectionName);
-    3: Result := CompareText(Data1^.LastUsed, Data2^.LastUsed);
-  end;
+  FRealExit := True;
+  Application.Terminate;
 end;
 
-procedure TfrmAppBase.edtSearchEnter(Sender: TObject);
+procedure TfrmAppBase.mniControlExitClick(Sender: TObject);
 begin
-  GlobalEngine.Stop;
+  FRealExit := True;
+  Application.Terminate;
 end;
 
-procedure TfrmAppBase.edtSearchExit(Sender: TObject);
-begin
-  GlobalEngine.Start;
-end;
-
-procedure TfrmAppBase.edtSearchChange(Sender: TObject);
-begin
-  SearchTimer.Enabled := False;
-  SearchTimer.Enabled := True;
-end;
-
-procedure TfrmAppBase.UpdatePreview;
+procedure TfrmAppBase.WMHotKey(var Msg: TMessage);
 var
-  Res: TDBResult;
-  Data: PTriggerData;
+  SelectedID: String;
+  {$IFDEF WINDOWS}
+  TargetWnd: HWND;
+  TargetThreadID, TargetProcessID: DWORD;
+  TargetProcessHandle: THandle;
+  GUIInfo: TGUITHREADINFO;
+  WaitCount: Integer;
+  {$ENDIF}
 begin
-  if vstTrigger.SelectedCount > 1 then
+  if not GlobalEngine.Active then Exit;
+  if (Msg.wParam = 1) or (Msg.wParam = 2) then
   begin
-    memPreview.Text := 'Multiple triggers selected.';
-    Exit;
-  end;
-  if vstTrigger.GetFirstSelected <> nil then
-  begin
-    Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
-    Res := FServiceDB.DB.Query('SELECT definition_text FROM definitions WHERE id = ' + QuotedStr(Data^.ID));
-    if Length(Res) > 0 then memPreview.Text := Res[0][0] else memPreview.Text := 'Select a trigger to view its definition.';
-  end else memPreview.Text := 'Select a trigger to view its definition.';
-end;
-
-procedure TfrmAppBase.memPreviewCaretHide(Sender: TObject);
-begin
-  HideCaret(TMemo(Sender).Handle);
-end;
-
-procedure TfrmAppBase.btnCollectionAddClick(Sender: TObject);
-var 
-  NewCollName: String; 
-  Res: TDBResult;
-  NewID: String;
-begin
-  if TfrmDialogInput.Execute('New Collection', 'Collection Name', '', NewCollName) then
-  begin
-    Res := FServiceDB.DB.Query('SELECT id FROM collections WHERE name = ' + QuotedStr(NewCollName) + ' COLLATE NOCASE');
-    if Length(Res) = 0 then
-    begin
-      NewID := NewMonoLexID;
-      FServiceDB.DB.Exec('INSERT INTO collections (id, name) VALUES (' + QuotedStr(NewID) + ',' + QuotedStr(NewCollName) + ')');
-      LoadCollections;
-      SelectCollectionByID(NewID);
-    end else MessageDlg('Validation Error', 'A collection with this name already exists.', mtWarning, [mbOK], 0);
-  end;
-end;
-
-procedure TfrmAppBase.btnTriggerAddClick(Sender: TObject);
-var
-  N, T, D, C: String;
-  CurrentCollID, TargetCollID: String;
-  Data: PCollectionData;
-  NewID: String;
-begin
-  CurrentCollID := COLLECTION_ALL_ID;
-  if vstCollection.GetFirstSelected <> nil then
-  begin
-    Data := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
-    CurrentCollID := Data^.ID;
-  end;
-  N := ''; T := ''; D := ''; C := '';
-  if CurrentCollID <> COLLECTION_ALL_ID then
-    C := CurrentCollID;
-  if TfrmDialogDefinition.Execute(FServiceDB.DB, 'New Trigger', '', N, T, D, C) then
-  begin
-    NewID := NewMonoLexID;
-    FServiceDB.DB.Exec('INSERT INTO definitions (id, collection_id, name, trigger_word, definition_text) VALUES (' + QuotedStr(NewID) + ',' + QuotedStr(C) + ',' + QuotedStr(N) + ',' + QuotedStr(T) + ',' + QuotedStr(D) + ')');
-    if CurrentCollID = COLLECTION_ALL_ID then
-      TargetCollID := COLLECTION_ALL_ID
-    else
-      TargetCollID := C;
-    LoadCollections;
-    SelectCollectionByID(TargetCollID);
-    SelectTriggerByID(NewID);
-    GlobalEngine.Stop;
-    FResolver.RebuildIndex;
-    GlobalEngine.BufferReset;
-    GlobalEngine.Start;
-  end;
-end;
-
-procedure TfrmAppBase.btnTriggerEditClick(Sender: TObject);
-var
-  N, T, D, C, ID: String;
-  Res: TDBResult;
-  Data: PTriggerData;
-  CurrentCollID, TargetCollID: String;
-  CollData: PCollectionData;
-begin
-  if vstTrigger.SelectedCount <> 1 then
-  begin
-    MessageDlg('Selection Error', 'Please select a trigger to edit.', mtWarning, [mbOK], 0);
-    Exit;
-  end;
-  CurrentCollID := COLLECTION_ALL_ID;
-  if vstCollection.GetFirstSelected <> nil then
-  begin
-    CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
-    CurrentCollID := CollData^.ID;
-  end;
-  Data := vstTrigger.GetNodeData(vstTrigger.GetFirstSelected);
-  ID := Data^.ID;
-  Res := FServiceDB.DB.Query('SELECT name, trigger_word, definition_text, collection_id FROM definitions WHERE id = ' + QuotedStr(ID));
-  if Length(Res) = 0 then Exit;
-  N := Res[0][0];
-  T := Res[0][1];
-  D := Res[0][2];
-  C := Res[0][3];
-  if TfrmDialogDefinition.Execute(FServiceDB.DB, 'Edit Trigger', ID, N, T, D, C) then
-  begin
-    FServiceDB.DB.Exec('UPDATE definitions SET collection_id=' + QuotedStr(C) + ', name=' + QuotedStr(N) + ', trigger_word=' + QuotedStr(T) + ', definition_text=' + QuotedStr(D) + ' WHERE id=' + QuotedStr(ID));
-    if CurrentCollID = COLLECTION_ALL_ID then
-      TargetCollID := COLLECTION_ALL_ID
-    else
-      TargetCollID := C;
-    LoadCollections;
-    SelectCollectionByID(TargetCollID);
-    SelectTriggerByID(ID);
-    GlobalEngine.Stop;
-    FResolver.RebuildIndex;
-    GlobalEngine.BufferReset;
-    GlobalEngine.Start;
-  end;
-end;
-
-procedure TfrmAppBase.btnTriggerDeleteClick(Sender: TObject);
-var
-  Data: PTriggerData;
-  Node: PVirtualNode;
-  Count: Integer;
-  Msg: String;
-  CurrentCollID: String;
-  CollData: PCollectionData;
-begin
-  Count := vstTrigger.SelectedCount;
-  if Count = 0 then
-  begin
-    MessageDlg('Selection Error', 'Please select at least one trigger to delete.', mtWarning, [mbOK], 0);
-    Exit;
-  end;
-  CurrentCollID := COLLECTION_ALL_ID;
-  if vstCollection.GetFirstSelected <> nil then
-  begin
-    CollData := vstCollection.GetNodeData(vstCollection.GetFirstSelected);
-    CurrentCollID := CollData^.ID;
-  end;
-  if Count = 1 then
-    Msg := 'Are you sure you wish to delete this trigger?'
-  else
-    Msg := Format('Are you sure you wish to delete the %d selected triggers?', [Count]);
-  if MessageDlg('Delete Trigger', Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-  begin
-    FServiceDB.DB.Exec('BEGIN TRANSACTION;');
     try
-      Node := vstTrigger.GetFirstSelected;
-      while Assigned(Node) do
+      {$IFDEF WINDOWS}
+      TargetWnd := GetForegroundWindow();
+      {$ENDIF}
+      if Assigned(FServiceDB) then
+        SelectedID := TfrmDialogSearchQuick.Execute(FServiceDB.DB)
+      else
+        SelectedID := '';
+      if SelectedID <> '' then
       begin
-        Data := vstTrigger.GetNodeData(Node);
-        FServiceDB.DB.Exec('DELETE FROM definitions WHERE id = ' + QuotedStr(Data^.ID));
-        Node := vstTrigger.GetNextSelected(Node);
+        {$IFDEF WINDOWS}
+        if TargetWnd <> 0 then
+        begin
+          SetForegroundWindow(TargetWnd);
+          TargetThreadID := GetWindowThreadProcessId(TargetWnd, @TargetProcessID);
+          TargetProcessHandle := OpenProcess(PROCESS_QUERY_INFORMATION, False, TargetProcessID);
+          if TargetProcessHandle <> 0 then
+          begin
+            WaitForInputIdle(TargetProcessHandle, 1000);
+            CloseHandle(TargetProcessHandle);
+          end;
+          GUIInfo.cbSize := SizeOf(TGUITHREADINFO);
+          WaitCount := 0;
+          while WaitCount < 250 do
+          begin
+            if GetForegroundWindow() = TargetWnd then
+            begin
+              if GetGUIThreadInfo(TargetThreadID, @GUIInfo) and (GUIInfo.hwndFocus <> 0) then Break;
+            end;
+            Sleep(1);
+            Inc(WaitCount);
+          end;
+          Sleep(100);
+        end;
+        {$ENDIF}
+        GlobalEngine.ExecuteSubstitution('', SelectedID);
       end;
-      FServiceDB.DB.Exec('COMMIT;');
-    except
-      FServiceDB.DB.Exec('ROLLBACK;');
-      raise;
+    finally
+      DumpMemory;
     end;
-    LoadCollections;
-    SelectCollectionByID(CurrentCollID);
-    GlobalEngine.Stop;
-    FResolver.RebuildIndex;
-    GlobalEngine.BufferReset;
-    GlobalEngine.Start;
   end;
+end;
+
+procedure TfrmAppBase.WMRestore(var Msg: TMessage);
+begin
+  if Msg.Msg = 0 then;
+  mniTrayShowClick(nil);
+end;
+
+procedure TfrmAppBase.WMQuit(var Msg: TMessage);
+begin
+  if Msg.Msg = 0 then;
+  FRealExit := True;
+  Close;
+end;
+
+{$IFDEF WINDOWS}
+procedure TfrmAppBase.WMPowerBroadcast(var Msg: TMessage);
+begin
+  if Msg.wParam = PBT_APMSUSPEND then
+  begin
+    if Assigned(GlobalEngine) then GlobalEngine.Stop;
+  end
+  else if (Msg.wParam = PBT_APMRESUMEAUTOMATIC) or (Msg.wParam = PBT_APMRESUMESUSPEND) then
+  begin
+    if Assigned(GlobalEngine) then GlobalEngine.Start;
+  end;
+  Msg.Result := 1;
+end;
+
+procedure TfrmAppBase.WMSessionChange(var Msg: TMessage);
+begin
+  if Msg.wParam = WTS_SESSION_UNLOCK then
+  begin
+    if Assigned(GlobalEngine) then
+    begin
+      GlobalEngine.Stop;
+      GlobalEngine.Start;
+    end;
+  end;
+  Msg.Result := 0;
+end;
+{$ENDIF}
+
+procedure TfrmAppBase.SelectCollectionByID(const ACollectionID: String);
+var
+  Node: PVirtualNode;
+  Data: PCollectionData;
+begin
+  Node := vstCollection.GetFirst;
+  while Assigned(Node) do
+  begin
+    Data := vstCollection.GetNodeData(Node);
+    if Data^.ID = ACollectionID then
+    begin
+      vstCollection.ClearSelection;
+      vstCollection.Selected[Node] := True;
+      vstCollection.FocusedNode := Node;
+      vstCollection.ScrollIntoView(Node, True);
+      Break;
+    end;
+    Node := vstCollection.GetNext(Node);
+  end;
+end;
+
+procedure TfrmAppBase.SelectTriggerByID(const ATriggerID: String);
+var
+  Node: PVirtualNode;
+  Data: PTriggerData;
+begin
+  Node := vstTrigger.GetFirst;
+  while Assigned(Node) do
+  begin
+    Data := vstTrigger.GetNodeData(Node);
+    if Data^.ID = ATriggerID then
+    begin
+      vstTrigger.ClearSelection;
+      vstTrigger.Selected[Node] := True;
+      vstTrigger.FocusedNode := Node;
+      vstTrigger.ScrollIntoView(Node, True);
+      Break;
+    end;
+    Node := vstTrigger.GetNext(Node);
+  end;
+end;
+
+procedure TfrmAppBase.btnRefreshClick(Sender: TObject);
+begin
+  RefreshTriggerList;
+  UpdatePreview;
+end;
+
+procedure TfrmAppBase.IdleTimerTimer(Sender: TObject);
+begin
+  DumpMemory;
+  IdleTimer.Enabled := False;
+end;
+
+procedure TfrmAppBase.DumpMemory;
+begin
+  if Assigned(FServiceDB) then FServiceDB.DB.Exec('PRAGMA shrink_memory;');
+  {$IFDEF WINDOWS}
+  SetProcessWorkingSetSize(GetCurrentProcess(), PtrUInt(-1), PtrUInt(-1));
+  {$ENDIF}
 end;
 
 end.

@@ -182,12 +182,6 @@ begin
   FKeyBuffer := '';
 end;
 
-destructor TServiceHook.Destroy;
-begin
-  Stop;
-  inherited Destroy;
-end;
-
 procedure TServiceHook.Start;
 begin
   if FActive then Exit;
@@ -232,6 +226,12 @@ procedure TServiceHook.ExecuteSubstitution(const Keyword, DefinitionID: String);
 begin
   if Assigned(FOnTrigger) then
     FOnTrigger(Keyword, DefinitionID);
+end;
+
+destructor TServiceHook.Destroy;
+begin
+  Stop;
+  inherited Destroy;
 end;
 
 end.

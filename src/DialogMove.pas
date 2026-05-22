@@ -69,26 +69,6 @@ begin
   ApplyAppFont(Self);
 end;
 
-procedure TfrmDialogMove.LoadCollections;
-var
-  Res: TDBResult;
-  i: Integer;
-  ObjStr: PString;
-begin
-  cmbCollection.Items.Clear;
-  if Assigned(FDB) then
-  begin
-    Res := FDB.Query('SELECT id, name FROM collections ORDER BY name ASC');
-    for i := 0 to High(Res) do
-    begin
-      New(ObjStr);
-      ObjStr^ := Res[i][0];
-      cmbCollection.Items.AddObject(Res[i][1], TObject(ObjStr));
-    end;
-  end;
-  if cmbCollection.Items.Count > 0 then cmbCollection.ItemIndex := 0;
-end;
-
 class function TfrmDialogMove.Execute(ADB: TStaticSQLite; out ACollID: String): Boolean;
 var
   Dlg: TfrmDialogMove;
@@ -110,6 +90,26 @@ begin
       Dispose(PString(Dlg.cmbCollection.Items.Objects[i]));
     Dlg.Free;
   end;
+end;
+
+procedure TfrmDialogMove.LoadCollections;
+var
+  Res: TDBResult;
+  i: Integer;
+  ObjStr: PString;
+begin
+  cmbCollection.Items.Clear;
+  if Assigned(FDB) then
+  begin
+    Res := FDB.Query('SELECT id, name FROM collections ORDER BY name ASC');
+    for i := 0 to High(Res) do
+    begin
+      New(ObjStr);
+      ObjStr^ := Res[i][0];
+      cmbCollection.Items.AddObject(Res[i][1], TObject(ObjStr));
+    end;
+  end;
+  if cmbCollection.Items.Count > 0 then cmbCollection.ItemIndex := 0;
 end;
 
 procedure TfrmDialogMove.btnSaveClick(Sender: TObject);
