@@ -687,7 +687,7 @@ var
 begin
   if vstCollection.SelectedCount = 0 then Exit;
   dlgExport.Title := 'Export Collections';
-  dlgExport.FileName := 'Pasted_Collection_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
+  dlgExport.FileName := 'Pasted-Collection-Export-' + FormatDateTime('yyyymmdd-hhnnss', Now) + '.json';
   if dlgExport.Execute then
   begin
     HasAllNode := False;
@@ -1092,7 +1092,7 @@ var
   JSONStr: String;
 begin
   dlgExport.Title := 'Export Triggers';
-  dlgExport.FileName := 'Pasted_Export_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.json';
+  dlgExport.FileName := 'Pasted-Export-' + FormatDateTime('yyyymmdd-hhnnss', Now) + '.json';
   if dlgExport.Execute then
   begin
     JSONArr := TJSONArray.Create;
@@ -1230,7 +1230,7 @@ var
   TestStream: TFileStream;
 begin
   dlgBackup.Title := 'Back Up Database';
-  dlgBackup.FileName := 'Pasted_Backup_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.db';
+  dlgBackup.FileName := 'Pasted-Backup-' + FormatDateTime('yyyymmdd-hhnnss', Now) + '.db';
   if dlgBackup.Execute then
   begin
     try
@@ -1289,7 +1289,7 @@ begin
     GlobalEngine.Stop;
     if Assigned(FResolver) then FreeAndNil(FResolver);
     if Assigned(FServiceDB) then FreeAndNil(FServiceDB);
-    BackupPath := DBPath + '.bak_' + FormatDateTime('yyyymmdd_hhnnss', Now);
+    BackupPath := DBPath + '.bak-' + FormatDateTime('yyyymmdd-hhnnss', Now);
     if FileExists(DBPath) then
       RenameFile(DBPath, BackupPath);
     try

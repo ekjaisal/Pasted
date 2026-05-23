@@ -92,7 +92,7 @@ begin
   Dir := IncludeTrailingPathDelimiter(GetAppConfigDir(False));
   FileList := TStringList.Create;
   try
-    if FindFirst(Dir + 'Pasted.db.bak_*', faAnyFile, SearchRec) = 0 then
+    if FindFirst(Dir + 'Pasted.db.bak-*', faAnyFile, SearchRec) = 0 then
     begin
       repeat
         FileList.Add(Dir + SearchRec.Name);
