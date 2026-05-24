@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -35,9 +32,8 @@ program Pasted;
 {$mode objfpc}{$H+}
 
 uses
-  cmem,
-  Interfaces, Windows, Messages, SysUtils, Forms, DataShared, AppBase, ServiceHook, AppIdentity,
-  DialogAbout, DialogSearchQuick, DialogMove;
+  cmem, Interfaces, Windows, Messages, SysUtils, Forms, AppBase, AppIdentity,
+  DataShared, DialogAbout, DialogMove, DialogSearchQuick, ServiceHook;
 
 {$R *.res}
 
@@ -52,9 +48,7 @@ begin
   begin
     if SameText(ParamStr(i), '-quit') then IsQuitReq := True;
   end;
-
   hMutex := CreateMutex(nil, True, 'Pasted_Unique_Instance_Mutex_9988');
-
   if (hMutex = 0) or (GetLastError = ERROR_ALREADY_EXISTS) then
   begin
     hExisting := FindWindow(nil, 'Pasted');
@@ -68,27 +62,21 @@ begin
         SetForegroundWindow(hExisting);
       end;
     end;
-
     if hMutex <> 0 then CloseHandle(hMutex);
     Halt;
   end;
-
   if IsQuitReq then
   begin
     if hMutex <> 0 then CloseHandle(hMutex);
     Halt;
   end;
-
   RequireDerivedFormResource := True;
   Application.Scaled := True;
-
   {$PUSH}{$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;
   {$POP}
-
   Application.Initialize;
   Application.CreateForm(TdmShared, dmShared);
-
   for i := 1 to ParamCount do
   begin
     if SameText(ParamStr(i), '-tray') then
@@ -97,9 +85,7 @@ begin
       Break;
     end;
   end;
-
   Application.CreateForm(TfrmAppBase, frmAppBase);
   Application.Run;
-
   if hMutex <> 0 then CloseHandle(hMutex);
 end.

@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -37,8 +34,7 @@ unit ServiceHook;
 interface
 
 uses
-  Classes, SysUtils, Forms, LCLIntf, LCLType, Clipbrd
-  {$IFDEF WINDOWS}, Windows{$ENDIF};
+  Classes, Forms, SysUtils {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type
   TOnSnippetTrigger = procedure(const Keyword, DefinitionID: String) of object;
@@ -47,10 +43,10 @@ type
   TServiceHook = class
   private
     FActive: Boolean;
-    FSuspended: Boolean;
     FKeyBuffer: String;
     FOnKeyLog: TOnKeyLog;
     FOnTrigger: TOnSnippetTrigger;
+    FSuspended: Boolean;
     {$IFDEF WINDOWS}
     FHookHandle: HHOOK;
     {$ENDIF}
@@ -58,23 +54,25 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure BufferReset;
+    procedure ExecuteSubstitution(const Keyword, DefinitionID: String);
+    procedure Resume;
     procedure Start;
     procedure Stop;
     procedure Suspend;
-    procedure Resume;
-    procedure BufferReset;
-    procedure ExecuteSubstitution(const Keyword, DefinitionID: String);
-
     property Active: Boolean read FActive;
-    property Suspended: Boolean read FSuspended;
     property OnKeyLog: TOnKeyLog read FOnKeyLog write FOnKeyLog;
     property OnTrigger: TOnSnippetTrigger read FOnTrigger write FOnTrigger;
+    property Suspended: Boolean read FSuspended;
   end;
 
 var
   GlobalEngine: TServiceHook;
 
 implementation
+
+uses
+  Clipbrd, LCLIntf, LCLType;
 
 {$IFDEF WINDOWS}
 const
@@ -105,7 +103,6 @@ var
   UChar: Word;
 begin
   BufferW := Default(TBufferW);
-
   if (nCode = HC_ACTION) and Assigned(GlobalEngine) and GlobalEngine.Active and not GlobalEngine.Suspended then
   begin
     if (KeyHookStruct^.flags and LLKHF_INJECTED) <> 0 then
@@ -113,14 +110,11 @@ begin
       Result := CallNextHookEx(0, nCode, wParam, lParam);
       Exit;
     end;
-
     IsDown := (wParam = WM_KEYDOWN) or (wParam = WM_SYSKEYDOWN);
-
     if IsDown then
     begin
       CtrlDown := (GetAsyncKeyState(VK_CONTROL) and $8000) <> 0;
       AltDown := (GetAsyncKeyState(VK_MENU) and $8000) <> 0;
-
       if KeyHookStruct^.vkCode = VK_BACK then
       begin
         if Length(GlobalEngine.FKeyBuffer) > 0 then
@@ -145,12 +139,9 @@ begin
         KeyState := Default(TKeyboardState);
         FillChar(KeyState, SizeOf(KeyState), 0);
         GetKeyboardState(KeyState);
-
         if (GetAsyncKeyState(VK_SHIFT) and $8000) <> 0 then KeyState[VK_SHIFT] := $80;
         if (GetAsyncKeyState(VK_CAPITAL) and $0001) <> 0 then KeyState[VK_CAPITAL] := $01;
-
         CharCount := ToUnicode(KeyHookStruct^.vkCode, KeyHookStruct^.scanCode, KeyState, @BufferW[0], Length(BufferW), 0);
-
         if CharCount > 0 then
         begin
           for i := 0 to CharCount - 1 do
@@ -163,7 +154,6 @@ begin
                 Delete(GlobalEngine.FKeyBuffer, 1, 1);
             end;
           end;
-
           if Assigned(GlobalEngine.FOnKeyLog) then
           begin
             MatchedMonoLexID := '';
@@ -190,12 +180,6 @@ begin
   FActive := False;
   FSuspended := False;
   FKeyBuffer := '';
-end;
-
-destructor TServiceHook.Destroy;
-begin
-  Stop;
-  inherited Destroy;
 end;
 
 procedure TServiceHook.Start;
@@ -242,6 +226,12 @@ procedure TServiceHook.ExecuteSubstitution(const Keyword, DefinitionID: String);
 begin
   if Assigned(FOnTrigger) then
     FOnTrigger(Keyword, DefinitionID);
+end;
+
+destructor TServiceHook.Destroy;
+begin
+  Stop;
+  inherited Destroy;
 end;
 
 end.

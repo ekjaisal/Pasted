@@ -14,7 +14,7 @@ object frmAppBase: TfrmAppBase
   Font.Quality = fqDraft
   Menu = mnuAppBase
   Position = poScreenCenter
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -67,7 +67,7 @@ object frmAppBase: TfrmAppBase
         OnClick = btnCollectionAddClick
       end
     end
-    object vstCollection: TVirtualStringTree
+    object vstCollection: TLazVirtualStringTree
       AnchorSideLeft.Control = pnlLeft
       AnchorSideTop.Control = pnlCollectionAction
       AnchorSideTop.Side = asrBottom
@@ -106,7 +106,7 @@ object frmAppBase: TfrmAppBase
       PopupMenu = pmnCollection
       TabOrder = 1
       TextMargin = 8
-      TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages]
+      TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
       TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
       OnChange = vstCollectionChange
       OnCompareNodes = vstCollectionCompareNodes
@@ -237,7 +237,7 @@ object frmAppBase: TfrmAppBase
         OnClick = btnRefreshClick
       end
     end
-    object vstTrigger: TVirtualStringTree
+    object vstTrigger: TLazVirtualStringTree
       AnchorSideLeft.Control = pnlMiddle
       AnchorSideTop.Control = pnlSearch
       AnchorSideTop.Side = asrBottom
@@ -286,7 +286,7 @@ object frmAppBase: TfrmAppBase
       PopupMenu = pmnTrigger
       TabOrder = 1
       TextMargin = 8
-      TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages]
+      TreeOptions.PaintOptions = [toShowDropmark, toThemeAware, toUseBlendedImages, toUseExplorerTheme]
       TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
       OnChange = vstTriggerChange
       OnCompareNodes = vstTriggerCompareNodes

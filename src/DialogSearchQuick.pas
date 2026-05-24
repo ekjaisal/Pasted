@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -37,9 +34,8 @@ unit DialogSearchQuick;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  LCLType, Menus, VirtualTrees, AppFont, StaticSQLite
-  {$IFDEF WINDOWS}, Windows{$ENDIF};
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils, laz.VirtualTrees, StaticSQLite;
 
 type
   PDialogSearchQuickData = ^TDialogSearchQuickData;
@@ -49,27 +45,28 @@ type
     Trigger: String;
   end;
 
+  { TfrmDialogSearchQuick }
   TfrmDialogSearchQuick = class(TForm)
     edtSearch: TEdit;
     pnlSearch: TPanel;
     pnlSeparator: TPanel;
     pmnSuppress: TPopupMenu;
-    vstResults: TVirtualStringTree;
+    vstResults: TLazVirtualStringTree;
     procedure edtSearchChange(Sender: TObject);
     procedure edtSearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure vstResultsClick(Sender: TObject);
     procedure vstResultsFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+    procedure vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     FDB: TStaticSQLite;
     FSelectedID: String;
-    procedure PerformSearch;
     procedure ExecuteSelected;
+    procedure PerformSearch;
     procedure ProcessSearchRow(const Row: array of String);
     procedure UpdateInterfaceState;
   public
@@ -82,48 +79,9 @@ var
 implementation
 
 uses
-  ServiceHook;
+  LCLType, AppFont, ServiceHook {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 {$R *.lfm}
-
-class function TfrmDialogSearchQuick.Execute(ADB: TStaticSQLite): String;
-var
-  Dlg: TfrmDialogSearchQuick;
-  StillActive: Boolean;
-begin
-  Result := '';
-  Dlg := TfrmDialogSearchQuick.Create(nil);
-  try
-    Dlg.FDB := ADB;
-    Dlg.FormStyle := fsStayOnTop;
-    Dlg.FSelectedID := '';
-    Dlg.Show;
-
-    {$IFDEF WINDOWS}
-    SetForegroundWindow(Dlg.Handle);
-    {$ENDIF}
-
-    while Dlg.Visible and not Application.Terminated do
-    begin
-      Application.ProcessMessages;
-
-      {$IFDEF WINDOWS}
-      StillActive := (GetForegroundWindow = Dlg.Handle);
-      if not StillActive and (Dlg.FSelectedID = '') then
-      begin
-        Sleep(50);
-        if GetForegroundWindow <> Dlg.Handle then Dlg.Close;
-      end;
-      {$ENDIF}
-
-      Sleep(10);
-    end;
-
-    Result := Dlg.FSelectedID;
-  finally
-    Dlg.Free;
-  end;
-end;
 
 procedure TfrmDialogSearchQuick.FormCreate(Sender: TObject);
 begin
@@ -140,18 +98,38 @@ begin
   edtSearch.SetFocus;
 end;
 
-procedure TfrmDialogSearchQuick.FormDeactivate(Sender: TObject);
+class function TfrmDialogSearchQuick.Execute(ADB: TStaticSQLite): String;
+var
+  Dlg: TfrmDialogSearchQuick;
+  StillActive: Boolean;
 begin
-  if Visible and (FSelectedID = '') then
-  begin
-    Close;
+  Result := '';
+  Dlg := TfrmDialogSearchQuick.Create(nil);
+  try
+    Dlg.FDB := ADB;
+    Dlg.FormStyle := fsStayOnTop;
+    Dlg.FSelectedID := '';
+    Dlg.Show;
+    {$IFDEF WINDOWS}
+    SetForegroundWindow(Dlg.Handle);
+    {$ENDIF}
+    while Dlg.Visible and not Application.Terminated do
+    begin
+      Application.ProcessMessages;
+      {$IFDEF WINDOWS}
+      StillActive := (GetForegroundWindow = Dlg.Handle);
+      if not StillActive and (Dlg.FSelectedID = '') then
+      begin
+        Sleep(50);
+        if GetForegroundWindow <> Dlg.Handle then Dlg.Close;
+      end;
+      {$ENDIF}
+      Sleep(10);
+    end;
+    Result := Dlg.FSelectedID;
+  finally
+    Dlg.Free;
   end;
-end;
-
-procedure TfrmDialogSearchQuick.FormDestroy(Sender: TObject);
-begin
-  if Assigned(GlobalEngine) then GlobalEngine.Start;
-  vstResults.Clear;
 end;
 
 procedure TfrmDialogSearchQuick.UpdateInterfaceState;
@@ -180,10 +158,8 @@ begin
     vstResults.Clear;
     Exit;
   end;
-
   SVal := QuotedStr('%' + Trim(edtSearch.Text) + '%');
   SQL := 'SELECT id, name, trigger_word FROM definitions WHERE (name LIKE ' + SVal + ' OR trigger_word LIKE ' + SVal + ' OR definition_text LIKE ' + SVal + ') ORDER BY last_triggered DESC LIMIT 15';
-
   vstResults.BeginUpdate;
   try
     vstResults.Clear;
@@ -191,7 +167,6 @@ begin
   finally
     vstResults.EndUpdate;
   end;
-
   if vstResults.TotalCount > 0 then
   begin
     vstResults.FocusedNode := vstResults.GetFirst;
@@ -256,6 +231,18 @@ begin
   end;
 end;
 
+procedure TfrmDialogSearchQuick.vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+var
+  Data: PDialogSearchQuickData;
+begin
+  if TextType = ttNormal then;
+  Data := Sender.GetNodeData(Node);
+  case Column of
+    0: CellText := Data^.Name;
+    1: CellText := Data^.Trigger;
+  end;
+end;
+
 procedure TfrmDialogSearchQuick.vstResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Shift = [] then;
@@ -285,24 +272,26 @@ begin
   ExecuteSelected;
 end;
 
-procedure TfrmDialogSearchQuick.vstResultsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-var
-  Data: PDialogSearchQuickData;
-begin
-  if TextType = ttNormal then;
-  Data := Sender.GetNodeData(Node);
-  case Column of
-    0: CellText := Data^.Name;
-    1: CellText := Data^.Trigger;
-  end;
-end;
-
 procedure TfrmDialogSearchQuick.vstResultsFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   Data: PDialogSearchQuickData;
 begin
   Data := Sender.GetNodeData(Node);
   Finalize(Data^);
+end;
+
+procedure TfrmDialogSearchQuick.FormDeactivate(Sender: TObject);
+begin
+  if Visible and (FSelectedID = '') then
+  begin
+    Close;
+  end;
+end;
+
+procedure TfrmDialogSearchQuick.FormDestroy(Sender: TObject);
+begin
+  if Assigned(GlobalEngine) then GlobalEngine.Start;
+  vstResults.Clear;
 end;
 
 end.

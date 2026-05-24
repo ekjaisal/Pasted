@@ -1,22 +1,19 @@
 {
- BSD 3-Clause License
- ____________________
- 
  Copyright © 2026, Jaisal E. K.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  
- 1. Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
  
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
  
- 3. Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+   3. Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -37,24 +34,21 @@ unit DialogMove;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Menus, AppFont, StaticSQLite;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
+  SysUtils, StaticSQLite;
 
 type
-
   { TfrmDialogMove }
-
   TfrmDialogMove = class(TForm)
-    btnSave: TButton;
     btnCancel: TButton;
+    btnSave: TButton;
     cmbCollection: TComboBox;
     lblCollection: TLabel;
-    pnlAction: TPanel;
     pmnSuppress: TPopupMenu;
-
-    procedure FormCreate(Sender: TObject);
-    procedure btnSaveClick(Sender: TObject);
+    pnlAction: TPanel;
     procedure btnCancelClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FDB: TStaticSQLite;
     FResolvedCollID: String;
@@ -65,31 +59,14 @@ type
 
 implementation
 
+uses
+  AppFont;
+
 {$R *.lfm}
 
 procedure TfrmDialogMove.FormCreate(Sender: TObject);
 begin
   ApplyAppFont(Self);
-end;
-
-procedure TfrmDialogMove.LoadCollections;
-var
-  Res: TDBResult;
-  i: Integer;
-  ObjStr: PString;
-begin
-  cmbCollection.Items.Clear;
-  if Assigned(FDB) then
-  begin
-    Res := FDB.Query('SELECT id, name FROM collections ORDER BY name ASC');
-    for i := 0 to High(Res) do
-    begin
-      New(ObjStr);
-      ObjStr^ := Res[i][0];
-      cmbCollection.Items.AddObject(Res[i][1], TObject(ObjStr));
-    end;
-  end;
-  if cmbCollection.Items.Count > 0 then cmbCollection.ItemIndex := 0;
 end;
 
 class function TfrmDialogMove.Execute(ADB: TStaticSQLite; out ACollID: String): Boolean;
@@ -115,6 +92,26 @@ begin
   end;
 end;
 
+procedure TfrmDialogMove.LoadCollections;
+var
+  Res: TDBResult;
+  i: Integer;
+  ObjStr: PString;
+begin
+  cmbCollection.Items.Clear;
+  if Assigned(FDB) then
+  begin
+    Res := FDB.Query('SELECT id, name FROM collections ORDER BY name ASC');
+    for i := 0 to High(Res) do
+    begin
+      New(ObjStr);
+      ObjStr^ := Res[i][0];
+      cmbCollection.Items.AddObject(Res[i][1], TObject(ObjStr));
+    end;
+  end;
+  if cmbCollection.Items.Count > 0 then cmbCollection.ItemIndex := 0;
+end;
+
 procedure TfrmDialogMove.btnSaveClick(Sender: TObject);
 var
   Idx: Integer;
@@ -125,7 +122,6 @@ begin
     MessageDlg('Validation Error', 'Please select a valid collection.', mtWarning, [mbOK], 0);
     Exit;
   end;
-
   FResolvedCollID := PString(cmbCollection.Items.Objects[Idx])^;
   ModalResult := mrOk;
 end;
