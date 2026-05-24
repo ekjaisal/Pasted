@@ -53,7 +53,8 @@ The application uses a local [SQLite3](https://sqlite.org) database for data sto
 
 2. Install and launch the application.
 
-   **Note:** Windows SmartScreen may flag the installer as an unrecognised application. Provided the installer is sourced from the locations specified in step 1, bypass the prompt by clicking **More info** → **Run anyway**. For added assurance, [verify](#verification) the `SHA256SUMS`.
+> [!NOTE]
+> Windows SmartScreen may flag the installer as an unrecognised application. Provided the installer is sourced from the locations specified in step 1, bypass the prompt by clicking **More info** → **Run anyway**. For added assurance, [verify](#verification) the `SHA256SUMS`.
 
 3. Add or import triggers to get Pasted springing into action.
 
@@ -65,10 +66,11 @@ The application uses a local [SQLite3](https://sqlite.org) database for data sto
 
 ## Verification
 
-A PGP signed `SHA256SUMS` file is included with the release artifacts for verifying integrity.
+A PGP-signed `SHA256SUMS` file is included with the release artefacts for integrity verification.
 
-**Fingerprint:** `C4A8 E4F9 1650 7DD9 49D4 5DF8 B4ED 8851 B020 2101`
-**Key Server:** [keys.openpgp.org](https://keys.openpgp.org)
+| Fingerprint                                         | Key Server                                   |
+| --------------------------------------------------- | -------------------------------------------- |
+| `C4A8 E4F9 1650 7DD9 49D4 5DF8 B4ED 8851 B020 2101` | [keys.openpgp.org](https://keys.openpgp.org) |
 
 ## Limitations
 
@@ -77,7 +79,7 @@ A PGP signed `SHA256SUMS` file is included with the release artifacts for verify
 
 ## Building from Source
 
-Pasted uses custom-compiled SQLite3, statically linked to the executable to make it fully standalone and self-contained. The steps to build the project from source are as follows:
+Pasted is built and shipped with a ready-to-set-up installer. However, if required, it can be rebuilt exactly (or with modifications) by following the Windows build process specified below:
 
 ### Build Prerequisites
 
@@ -104,7 +106,10 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
    
 3. **Compile the Application**
 
-   Build using **Run** → **Build** or `Shift` + `F9` in the Lazarus IDE.
+   Build using **Run** → **Build** or `Shift` + `F9` in the Lazarus IDE. The executable will be compiled to the `bin/` directory.
+   
+> [!NOTE]
+> For most users, the ready-to-set-up installer from the [Releases](https://github.com/ekjaisal/Pasted/releases/latest) page should suffice.
 
 ## Acknowledgements
 
