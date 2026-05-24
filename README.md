@@ -93,7 +93,7 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
 
 1. **Compile SQLite3**
 
-   Navigate to the `vendor/sqlite3/` directory and execute the `build-sqlite3.bat` script to compile the SQLite3 amalgamation source to an optimised `sqlite3.o` object file.
+   Navigate to the `vendor/sqlite3/` directory and execute the `build-sqlite3.bat` script to download the latest SQLite3 amalgamation files and compile it to an optimised `sqlite3.o` object file.
 
 2. **Configure Library Paths in Lazarus**
 
