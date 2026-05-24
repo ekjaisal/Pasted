@@ -30,7 +30,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="39"/>
+      <BuildNr Value="41"/>
       <Language Value="0809"/>
       <StringTable Comments="Pass Trigger; Emit Definition" CompanyName="Jaisal E. K." FileDescription="Pasted" InternalName="Pasted" LegalCopyright="© 2026 Jaisal E. K." OriginalFilename="Pasted.exe" ProductName="Pasted" ProductVersion="1.0.0"/>
     </VersionInfo>
@@ -45,7 +45,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <Libraries Value="C:\winlibs\mingw64\lib\;C:\winlibs\mingw64\x86_64-w64-mingw32\lib\;C:\winlibs\mingw64\lib\gcc\x86_64-w64-mingw32\15.2.0\"/>
+            <Libraries Value="C:\w64devkit\lib\;C:\w64devkit\lib\gcc\x86_64-w64-mingw32\16.1.0\"/>
             <OtherUnitFiles Value="src"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -175,7 +175,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <Libraries Value="C:\winlibs\mingw64\lib\;C:\winlibs\mingw64\x86_64-w64-mingw32\lib\;C:\winlibs\mingw64\lib\gcc\x86_64-w64-mingw32\15.2.0\"/>
+      <Libraries Value="C:\w64devkit\lib\;C:\w64devkit\lib\gcc\x86_64-w64-mingw32\16.1.0\"/>
       <OtherUnitFiles Value="src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
