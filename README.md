@@ -81,32 +81,27 @@ Pasted uses custom-compiled SQLite3, statically linked to the executable to make
 
 ### Build Prerequisites
 
-* [Lazarus](https://www.lazarus-ide.org) IDE v4.4
+* [Lazarus IDE](https://www.lazarus-ide.org) v4.4 or later
 
-* [Free Pascal Compiler](https://www.freepascal.org) v3.2.2 (included with Lazarus IDE v4.4)
+* [Free Pascal Compiler](https://www.freepascal.org) v3.2.2 (included with Lazarus IDE)
 
-* [WinLibs](https://winlibs.com) (or a similar [GCC](https://gcc.gnu.org)-based C compiler toolchain).
+* [w64devkit](https://github.com/skeeto/w64devkit) (or a similar GCC-based C compiler toolchain for Windows)
 
-  **Note:** Add the binary directory (e.g. `C:\winlibs\mingw64\bin`) to the system’s PATH environment variable.
+  **Note:** Add the binary directory (e.g. `C:\w64devkit\bin`) to the system’s PATH environment variable.
 
 ### Build Instructions
 
 1. **Compile SQLite3**
 
-   Open the terminal and navigate to the `vendor/sqlite3/` directory and execute the `build-sqlite3.bat` script to compile the SQLite3 amalgamation source to an optimised `sqlite3.o` object file.
-
-   **Note:** This step uses GCC; therefore, it should be added to the PATH.
+   Navigate to the `vendor/sqlite3/` directory and execute the `build-sqlite3.bat` script to compile the SQLite3 amalgamation source to an optimised `sqlite3.o` object file.
 
 2. **Configure Library Paths in Lazarus**
 
-   Open `Pasted.lpi` in the IDE. Navigate to **Project** → **Project Options** → **Compiler Options** → **Paths**. In the **Libraries (-Fl)** field, add the required C library paths. 
+   Open `Pasted.lpi` in the IDE. Navigate to **Project** → **Project Options** → **Compiler Options** → **Paths**. In the **Libraries (-Fl)** field, and confirm (or modify, if required) the C library paths:
 
-   Example for WinLibs:
-
-     * `C:\winlibs\mingw64\lib\`
-     * `C:\winlibs\mingw64\x86_64-w64-mingw32\lib\`
-     * `C:\winlibs\mingw64\lib\gcc\x86_64-w64-mingw32\15.2.0\`
-
+     * `C:\w64devkit\lib\`
+     * `C:\w64devkit\lib\gcc\x86_64-w64-mingw32\16.1.0\`
+   
 3. **Compile the Application**
 
    Build using **Run** → **Build** or `Shift` + `F9` in the Lazarus IDE.
