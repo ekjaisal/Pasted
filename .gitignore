@@ -2,6 +2,7 @@ backup/
 lib/
 bin/
 releases/
+deps/*.o
 *.lps
 *.compiled
 *.o

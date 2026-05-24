@@ -8,6 +8,7 @@ set "SQLITE-TEMP-ZIP=%TEMP%\sqlite3-amalgamation.zip"
 set "SQLITE-TEMP-DIR=%TEMP%\sqlite3-extract"
 
 set "SQLITE-RELATIVE-URL="
+if not exist "..\deps" mkdir "..\deps"
 for /f "tokens=3 delims=," %%A in ('curl -s "%SQLITE-URL%/download.html" ^| findstr /i "sqlite-amalgamation-.*\.zip"') do (
     if "!SQLITE-RELATIVE-URL!"=="" set "SQLITE-RELATIVE-URL=%%A"
 )
@@ -72,7 +73,7 @@ gcc -c sqlite3.c -O2 -ffunction-sections -fdata-sections ^
     -DSQLITE_DQS=0 ^
     -DSQLITE_MAX_EXPR_DEPTH=0 ^
     -DSQLITE_LIKE_DOESNT_MATCH_BLOBS ^
-    -o sqlite3.o
+    -o ../deps/sqlite3.o
 
 if %errorlevel% neq 0 (
     echo ERROR: Compilation failed.
@@ -83,5 +84,5 @@ if %errorlevel% neq 0 (
 
 del /q sqlite3.c sqlite3.h 2>nul
 
-echo Done. sqlite3.o is ready.
+echo Done. sqlite3.o is available in ../deps/.
 pause

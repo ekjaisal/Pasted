@@ -36,7 +36,7 @@ interface
 uses
   Classes, SysUtils;
 
-{$link ../vendor/sqlite3/sqlite3.o}
+{$link ../deps/sqlite3.o}
 {$linklib kernel32}
 {$linklib msvcrt}
 {$linklib gcc}
